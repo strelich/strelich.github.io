@@ -1,0 +1,49 @@
+---
+title: "About Me"
+about:
+  template: solana
+  image: profile.png
+  links:
+    - icon: twitter
+      text: twitter
+      href: https://twitter.com/jack_strelich
+    - icon: github
+      text: Github
+      href: https://github.com/strelich
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/jack-strelich/
+---
+
+I am an unapologetic data nerd with a passion for turning messy data into understandable, actionable insights. I have tackled projects ranging from investigations of the cognitive mechanisms of ingroup bias, to explorations of gender differences in science education programs for elementary schools, to assessments of learning outcomes in leadership development workshops for state employees. I have substantial experience with framing research questions, developing and implementing appropriate methods (experimental and/or survey-based designs), assessing and aligning existing data sources, conducting statistical analyses, and communicating findings to stakeholders via reports, dashboards, and more.
+
+## Skills
+
+My skills include:
+
+- Experimental design
+- Survey development
+- Data aggregation, cleaning, and analysis
+- Data visualization and communication
+- Reproducible analysis and reporting workflows
+- R + tidyverse + Quarto, Git + GitHub, SQL, Python, SPSS, LaTeX, Qualtrics
+
+
+## Education
+
+### University of California, Santa Barbara
+
+Ph.D. in Psychological and Brain Sciences, June 2022
+
+- Emphasis in Quantitative Methods in Social Science (QMSS)
+- Certificate in College and University Teaching (CCUT)
+
+### California State University, Sacramento
+
+M.A. in Psychology, May 2016
+
+### Occidental College
+
+B.A. in Psychology, May 2011
+
+- Minor in Mathematics

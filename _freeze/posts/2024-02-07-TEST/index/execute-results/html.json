@@ -1,0 +1,17 @@
+{
+  "hash": "bbe0fdd7e318a15fca80f9245b135a96",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"TPBP\"\ndescription: \"Test Post Best Post\"\nauthor:\n  - name: Jack Strelich\n    url: https://strelich.github.io/\ndate: 2024-02-07\ncategories: [Quarto, R]\ndraft: false\n---\n\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget nulla. Enim nulla aliquet porttitor lacus luctus. Ligula ullamcorper malesuada proin libero nunc. In metus vulputate eu scelerisque felis imperdiet proin fermentum. Vivamus arcu felis bibendum ut tristique et egestas. Pellentesque elit ullamcorper dignissim cras tincidunt lobortis feugiat. Nunc non blandit massa enim nec. Quis hendrerit dolor magna eget est lorem ipsum dolor. Eu non diam phasellus vestibulum lorem sed risus ultricies. Sagittis vitae et leo duis ut diam quam. Gravida cum sociis natoque penatibus et magnis dis parturient.\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(ggplot2)\nggplot(mtcars, aes(x = hp, y = mpg)) + geom_point() + theme_minimal()\n```\n\n::: {.cell-output-display}\n![MPG by HP](index_files/figure-html/unnamed-chunk-1-1.png){width=672}\n:::\n:::\n\n\n\n\nElit scelerisque mauris pellentesque pulvinar pellentesque habitant morbi tristique. Diam vulputate ut pharetra sit amet aliquam id diam. Sagittis purus sit amet volutpat. Faucibus vitae aliquet nec ullamcorper sit amet risus nullam eget. Nulla facilisi morbi tempus iaculis urna. Viverra adipiscing at in tellus integer feugiat scelerisque varius morbi. Mollis aliquam ut porttitor leo a diam. Vitae et leo duis ut. Natoque penatibus et magnis dis parturient montes nascetur. Nisl rhoncus mattis rhoncus urna neque viverra justo nec.\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Let's check the distro!\nstem(mtcars$mpg)\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n\n  The decimal point is at the |\n\n  10 | 44\n  12 | 3\n  14 | 3702258\n  16 | 438\n  18 | 17227\n  20 | 00445\n  22 | 88\n  24 | 4\n  26 | 03\n  28 | \n  30 | 44\n  32 | 49\n```\n\n\n:::\n:::\n\n\n\nAuctor neque vitae tempus quam pellentesque. Porttitor massa id neque aliquam vestibulum morbi blandit cursus risus. Id ornare arcu odio ut sem nulla pharetra. Volutpat commodo sed egestas egestas. Tellus in hac habitasse platea dictumst. Blandit aliquam etiam erat velit scelerisque. Etiam dignissim diam quis enim lobortis. Pellentesque id nibh tortor id. Amet justo donec enim diam vulputate ut pharetra sit amet. Mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan tortor. Massa massa ultricies mi quis hendrerit. Vitae proin sagittis nisl rhoncus mattis rhoncus urna. Porttitor rhoncus dolor purus non enim praesent elementum facilisis. Dui sapien eget mi proin sed libero enim sed. A diam maecenas sed enim ut sem viverra. Nibh tortor id aliquet lectus. Faucibus scelerisque eleifend donec pretium vulputate sapien nec sagittis. Interdum velit laoreet id donec ultrices tincidunt.\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

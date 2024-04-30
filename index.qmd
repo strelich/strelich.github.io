@@ -1,0 +1,18 @@
+---
+title: "Welcome"
+listing:
+  - id: posts
+    contents: posts
+    sort: "date desc"
+    type: grid
+    max-items: 3
+---
+
+I'm [Jack Strelich](about.qmd), and this is my website! I [blog](posts.qmd) about data wrangling, analysis, and visualization. 
+
+## Recent Posts
+
+::: {#posts}
+:::
+
+<a href="../posts.html"> <button type="button" class="btn btn-primary float-end btn-sm">See all</button></a>
