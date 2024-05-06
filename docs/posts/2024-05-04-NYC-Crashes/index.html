@@ -7,6 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jack Strelich">
+<meta name="dcterms.date" content="2024-05-06">
+<meta name="description" content="Exploring a data set of motor vehicle crashes in New York City">
 
 <title>Jack Strelich, Data Scientist - NYC Crash Data</title>
 <style>
@@ -152,7 +154,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">NYC Crash Data</h1>
-                      </div>
+                  <div>
+        <div class="description">
+          Exploring a data set of motor vehicle crashes in New York City
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Data Cleaning</div>
+                <div class="quarto-category">Data Visualization</div>
+                <div class="quarto-category">Mapping</div>
+              </div>
+                  </div>
   </div>
     
   
@@ -165,6 +178,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             </div>
     </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 6, 2024</p>
+      </div>
+    </div>
     
       
     </div>
@@ -191,8 +210,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#mapping" id="toc-mapping" class="nav-link" data-scroll-target="#mapping">Mapping</a>
   <ul class="collapse">
   <li><a href="#individual-crashes" id="toc-individual-crashes" class="nav-link" data-scroll-target="#individual-crashes">Individual crashes</a></li>
-  <li><a href="#choropleth" id="toc-choropleth" class="nav-link" data-scroll-target="#choropleth">Choropleth</a></li>
+  <li><a href="#choropleth-map" id="toc-choropleth-map" class="nav-link" data-scroll-target="#choropleth-map">Choropleth map</a></li>
   <li><a href="#heatmap" id="toc-heatmap" class="nav-link" data-scroll-target="#heatmap">Heatmap</a></li>
+  <li><a href="#crashes-by-street-and-tract" id="toc-crashes-by-street-and-tract" class="nav-link" data-scroll-target="#crashes-by-street-and-tract">Crashes by street and tract</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions">Future Directions</a></li>
@@ -208,9 +228,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1>Overview</h1>
-<p>This post will explore a data set of motor vehicle crashes in New York City obtained via <a href="https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes">data.gov</a>. This data set interested me for two reasons. First, it’s quite comprehensive, covering all crashes resulting in injury and/or over $1000 in damage since mid-2012. Second, it’s messy in a way that’s very representative of real-world data (and very hard to replicate with more “shrink-wrapped” data sets).</p>
-<p>My goals for this analysis were to perform some basic data cleaning, get some insights from the data, and practice a type of visualization I don’t get to use very often in my day job: the <a href="https://en.wikipedia.org/wiki/Choropleth_map">choropleth</a>!</p>
-<p>We’ll starting by loading some packages:</p>
+<p>In this post, I’ll explore a data set of motor vehicle crashes in New York City obtained via <a href="https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes">data.gov</a>. This data set interested me for two reasons. First, it’s quite comprehensive, covering all crashes resulting in injury and/or over $1000 in damage since mid-2012. Second, it’s messy in a way that’s very representative of real-world data (and very hard to replicate with more “shrink-wrapped” data sets).</p>
+<p>My goals for this analysis were to perform some basic data cleaning, get some insights from the data, and practice a type of visualization I don’t get to use very often in my day job: the <a href="https://en.wikipedia.org/wiki/Choropleth_map">choropleth map</a>!</p>
+<p>To start, we’ll load the packages we need:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Handling dates</span></span>
@@ -314,22 +334,35 @@ Figure&nbsp;1: Incidents by date
 </div>
 </div>
 </div>
-<p>No obvious differences by month/season! Let’s also see what time incidents occurred, and whether this varied by month. To help us compare months, we’ll use a ridgeline plot<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, via <code>ggridges::geom_density_ridges()</code>:</p>
+<p>No obvious differences by month/season! Next, let’s consider crash times. Looking at raw crash time data, there seems to be an unusually high number of crashes at exactly midnight (<code>00:00</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>crash_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Crash_month =</span> <span class="fu">month</span>(Crash_date, <span class="at">label =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Crash_time, </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">color=</span>Crash_month,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill=</span>Crash_month,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> <span class="fu">fct_rev</span>(Crash_month))) <span class="sc">+</span> </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  ggridges<span class="sc">::</span><span class="fu">geom_density_ridges</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>,</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                                <span class="at">quantile_lines =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                                <span class="at">quantiles =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_time</span>(<span class="at">breaks =</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">6</span>)<span class="sc">*</span><span class="dv">14400</span>) <span class="sc">+</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Time of day"</span>, <span class="at">y =</span> <span class="st">"Month"</span>, </span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Vertical lines represent median."</span>) <span class="sc">+</span> </span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(crash_dat, Crash_time,<span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["Crash_time"],"name":[1],"type":["time"],"align":["right"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"00:00:00","2":"1616"},{"1":"15:00:00","2":"926"},{"1":"17:00:00","2":"890"},{"1":"16:00:00","2":"857"},{"1":"08:00:00","2":"833"},{"1":"18:00:00","2":"810"},{"1":"14:00:00","2":"796"},{"1":"09:00:00","2":"786"},{"1":"13:00:00","2":"786"},{"1":"12:00:00","2":"765"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>In fact, we see almost twice as many crashes reported at midnight as at 5pm! This makes me suspect that in at least some cases a crash time of <code>00:00</code> represents missing data; for the purposes of this graph, we’ll exclude them.</p>
+<p>Now to see whether the time that incidents occurred varied by month. To help us compare months, we’ll use a ridgeline plot<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, via <code>ggridges::geom_density_ridges()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>crash_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Crash_time <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Crash_month =</span> <span class="fu">month</span>(Crash_date, <span class="at">label =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Crash_time, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">color=</span>Crash_month,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill=</span>Crash_month,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> <span class="fu">fct_rev</span>(Crash_month))) <span class="sc">+</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  ggridges<span class="sc">::</span><span class="fu">geom_density_ridges</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                <span class="at">quantile_lines =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                                <span class="at">quantiles =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_time</span>(<span class="at">breaks =</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">6</span>)<span class="sc">*</span><span class="dv">14400</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Time of day"</span>, <span class="at">y =</span> <span class="st">"Month"</span>, </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Vertical lines represent median."</span>) <span class="sc">+</span> </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-incidents-time-month" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -349,20 +382,20 @@ Figure&nbsp;2: Incidents by month and time of day
 <h2 class="anchored" data-anchor-id="injuries-and-fatalities">Injuries and fatalities</h2>
 <p>To explore crash outcomes, we’ll use <code>pivot_longer()</code> to make a data frame with multiple rows per crash, each row representing the number of motorists, cyclists, or pedestrians (<code>Type</code>) who were injured or killed (<code>Outcome</code>) in that crash.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>outcomes_by_crash <span class="ot">&lt;-</span> crash_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Collision_id, </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"Crash"</span>), <span class="co"># Keep date and time</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"Number_of_"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Number_of_"</span>), </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_prefix =</span> <span class="st">"Number_of_"</span>, <span class="co"># Clean up col names</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">_"</span>, <span class="co"># Split at underscore</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"Type"</span>,<span class="st">"Outcome"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Crash_month =</span> <span class="fu">month</span>(Crash_date, <span class="at">label =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type =</span> <span class="fu">str_to_title</span>(Type),</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">Outcome =</span> <span class="fu">str_to_title</span>(Outcome))</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Check our work</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(outcomes_by_crash, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>outcomes_by_crash <span class="ot">&lt;-</span> crash_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Collision_id, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"Crash"</span>), <span class="co"># Keep date and time</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">starts_with</span>(<span class="st">"Number_of_"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Number_of_"</span>), </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_prefix =</span> <span class="st">"Number_of_"</span>, <span class="co"># Clean up col names</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">_"</span>, <span class="co"># Split at underscore</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"Type"</span>,<span class="st">"Outcome"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Crash_month =</span> <span class="fu">month</span>(Crash_date, <span class="at">label =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type =</span> <span class="fu">str_to_title</span>(Type),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">Outcome =</span> <span class="fu">str_to_title</span>(Outcome))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Check our work</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(outcomes_by_crash, <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -373,19 +406,19 @@ Figure&nbsp;2: Incidents by month and time of day
 </div>
 <p>Now we can plot total injuries/fatalities for motorists, cyclists, and pedestrians by month. Because fatalities are (thankfully) far rarer than injuries, we’ll use the <code>scales = "free_y"</code> argument to <code>facet_wrap()</code> to let the two halves of the plot use different y-axis limits. We’ll also use <code>fct_reorder()</code> to make sure the ordering of categories in the legend matches the ordering of the categories in the graph itself.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>outcomes_by_crash <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Type <span class="sc">!=</span> <span class="st">"Persons"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="fu">fct_reorder</span>(Type, value, sum, <span class="at">.desc =</span> T)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Crash_month, </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> value, </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> Type,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> Type)) <span class="sc">+</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom=</span><span class="st">"line"</span>, <span class="at">fun =</span> <span class="st">"sum"</span>) <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom=</span><span class="st">"point"</span>, <span class="at">fun =</span> <span class="st">"sum"</span>) <span class="sc">+</span> </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Outcome,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free_y"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">nrow =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Number of persons"</span>, <span class="at">x=</span> <span class="st">"Month"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>outcomes_by_crash <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Type <span class="sc">!=</span> <span class="st">"Persons"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="fu">fct_reorder</span>(Type, value, sum, <span class="at">.desc =</span> T)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Crash_month, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> value, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> Type,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> Type)) <span class="sc">+</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom=</span><span class="st">"line"</span>, <span class="at">fun =</span> <span class="st">"sum"</span>) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom=</span><span class="st">"point"</span>, <span class="at">fun =</span> <span class="st">"sum"</span>) <span class="sc">+</span> </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Outcome,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">scales =</span> <span class="st">"free_y"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">nrow =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Number of persons"</span>, <span class="at">x=</span> <span class="st">"Month"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-injuries-fatalities-month" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -408,18 +441,18 @@ Figure&nbsp;3: Injuries and fatalities by month
 <h3 class="anchored" data-anchor-id="cleaning">Cleaning</h3>
 <p>We’ll restructure the data such that each row represents one <em>vehicle</em>, rather than one incident!</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>vehicle_dat <span class="ot">&lt;-</span> crash_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Collision_id, <span class="fu">starts_with</span>(<span class="fu">c</span>(<span class="st">"Contributing_factor"</span>,<span class="st">"Type_code"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>Collision_id, </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"_vehicle_"</span>, </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>,<span class="st">"Vehicle"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Vehicle =</span> <span class="fu">as.factor</span>(<span class="fu">as.numeric</span>(Vehicle)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>vehicle_dat <span class="ot">&lt;-</span> crash_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Collision_id, <span class="fu">starts_with</span>(<span class="fu">c</span>(<span class="st">"Contributing_factor"</span>,<span class="st">"Type_code"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>Collision_id, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"_vehicle_"</span>, </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>,<span class="st">"Vehicle"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Vehicle =</span> <span class="fu">as.factor</span>(<span class="fu">as.numeric</span>(Vehicle)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we can look at the different vehicle type codes and contributing factors that occur in the data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Type_code, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Contributing_factor, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Type_code, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Contributing_factor, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-incidents-by-vehicle-type-factor-raw" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-incidents-by-vehicle-type-factor-raw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -446,36 +479,36 @@ Table&nbsp;1: Incidents by vehicle type and contributing factor (raw)
 </div>
 <p>There are a <em>lot</em> of categories in here, and many of them appear to overlap (e.g., “Motorcycle” and “Motorbike”). To clean up a bit, we’ll change all <code>Type_code</code> entries to sentence case, then manually consolidate some levels:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>vehicle_dat <span class="ot">&lt;-</span> vehicle_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type_code =</span> <span class="fu">str_to_sentence</span>(Type_code),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type_code =</span> <span class="fu">case_when</span>( <span class="co"># checks a series of conditionals</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(Type_code, </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">coll</span>(<span class="st">"wagon"</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)) <span class="sc">~</span> <span class="st">"SUV/station wagon"</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(Type_code, </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">coll</span>(<span class="st">"sedan"</span>,<span class="at">ignore_case =</span> <span class="cn">TRUE</span>)) <span class="sc">~</span> <span class="st">"Sedan"</span>,</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> Type_code),</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type_code =</span> <span class="fu">case_match</span>( <span class="co"># Replaces (vectors of) matches, OLD ~ NEW</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>           Type_code,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Bicycle"</span> <span class="sc">~</span> <span class="st">"Bike"</span>,</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Motorbike"</span> <span class="sc">~</span> <span class="st">"Motorcycle"</span>,</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Ambul"</span>,<span class="st">"Ambu"</span>,<span class="st">"Amb"</span>) <span class="sc">~</span> <span class="st">"Ambulance"</span>,</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Unkno"</span>,<span class="st">"Unk"</span>) <span class="sc">~</span> <span class="st">"Unknown"</span>,</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Fire"</span>,<span class="st">"Fdny"</span>,<span class="st">"Firetruck"</span>,</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Firet"</span>,<span class="st">"Fdny truck"</span>,<span class="st">"Fdny fire"</span>) <span class="sc">~</span> <span class="st">"Fire truck"</span>,</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>           <span class="st">"E-sco"</span> <span class="sc">~</span> <span class="st">"E-scooter"</span>,</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>           <span class="st">"E-bik"</span> <span class="sc">~</span> <span class="st">"E-bike"</span>,</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> Type_code) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_lump_prop</span>(<span class="fl">0.005</span>), <span class="co"># Lump codes occurring less than 0.5% </span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">Contributing_factor =</span> <span class="fu">fct_lump_prop</span>(</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_to_sentence</span>(Contributing_factor), </span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.005</span>)) <span class="co"># same for contributing factor</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>vehicle_dat <span class="ot">&lt;-</span> vehicle_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type_code =</span> <span class="fu">str_to_sentence</span>(Type_code),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type_code =</span> <span class="fu">case_when</span>( <span class="co"># checks a series of conditionals</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(Type_code, </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">coll</span>(<span class="st">"wagon"</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)) <span class="sc">~</span> <span class="st">"SUV/station wagon"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_detect</span>(Type_code, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">coll</span>(<span class="st">"sedan"</span>,<span class="at">ignore_case =</span> <span class="cn">TRUE</span>)) <span class="sc">~</span> <span class="st">"Sedan"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> Type_code),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">Type_code =</span> <span class="fu">case_match</span>( <span class="co"># Replaces (vectors of) matches, OLD ~ NEW</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>           Type_code,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Bicycle"</span> <span class="sc">~</span> <span class="st">"Bike"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Motorbike"</span> <span class="sc">~</span> <span class="st">"Motorcycle"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Ambul"</span>,<span class="st">"Ambu"</span>,<span class="st">"Amb"</span>) <span class="sc">~</span> <span class="st">"Ambulance"</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Unkno"</span>,<span class="st">"Unk"</span>) <span class="sc">~</span> <span class="st">"Unknown"</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"Fire"</span>,<span class="st">"Fdny"</span>,<span class="st">"Firetruck"</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Firet"</span>,<span class="st">"Fdny truck"</span>,<span class="st">"Fdny fire"</span>) <span class="sc">~</span> <span class="st">"Fire truck"</span>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>           <span class="st">"E-sco"</span> <span class="sc">~</span> <span class="st">"E-scooter"</span>,</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>           <span class="st">"E-bik"</span> <span class="sc">~</span> <span class="st">"E-bike"</span>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">.default =</span> Type_code) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_lump_prop</span>(<span class="fl">0.005</span>), <span class="co"># Lump codes occurring less than 0.5% </span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">Contributing_factor =</span> <span class="fu">fct_lump_prop</span>(</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_to_sentence</span>(Contributing_factor), </span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.005</span>)) <span class="co"># same for contributing factor</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s check our work:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(crashes_by_type <span class="ot">&lt;-</span> <span class="fu">count</span>(vehicle_dat, Type_code, </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>(crashes_by_factor <span class="ot">&lt;-</span> <span class="fu">count</span>(vehicle_dat, Contributing_factor, </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(crashes_by_type <span class="ot">&lt;-</span> <span class="fu">count</span>(vehicle_dat, Type_code, </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>(crashes_by_factor <span class="ot">&lt;-</span> <span class="fu">count</span>(vehicle_dat, Contributing_factor, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-incidents-by-vehicle-type-factor" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-incidents-by-vehicle-type-factor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -507,9 +540,9 @@ Table&nbsp;2: Incidents by vehicle type and contributing factor
 <section id="what-types-of-vehicles-were-involved-in-crashes" class="level4">
 <h4 class="anchored" data-anchor-id="what-types-of-vehicles-were-involved-in-crashes">What types of vehicles were involved in crashes?</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crashes_by_type, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_rev</span>(<span class="fu">fct_inorder</span>(Type_code)), <span class="at">y =</span> Crashes)) <span class="sc">+</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Vehicle type"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crashes_by_type, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_rev</span>(<span class="fu">fct_inorder</span>(Type_code)), <span class="at">y =</span> Crashes)) <span class="sc">+</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Vehicle type"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-incidents-by-vehicle-type" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -528,11 +561,11 @@ Figure&nbsp;4: Incidents by vehicle type
 <section id="what-contributing-factors-were-involved-in-crashes" class="level4">
 <h4 class="anchored" data-anchor-id="what-contributing-factors-were-involved-in-crashes">What contributing factors were involved in crashes?</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>crashes_by_factor <span class="sc">%&gt;%</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Contributing_factor <span class="sc">!=</span> <span class="st">"Unspecified"</span>) <span class="sc">%&gt;%</span> <span class="co"># Ignore missing data</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_rev</span>(<span class="fu">fct_inorder</span>(Contributing_factor)), <span class="at">y =</span> Crashes)) <span class="sc">+</span> </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Contributing factor"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>crashes_by_factor <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Contributing_factor <span class="sc">!=</span> <span class="st">"Unspecified"</span>) <span class="sc">%&gt;%</span> <span class="co"># Ignore missing data</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_rev</span>(<span class="fu">fct_inorder</span>(Contributing_factor)), <span class="at">y =</span> Crashes)) <span class="sc">+</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Contributing factor"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-incidents-by-factor" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -550,14 +583,15 @@ Figure&nbsp;5: Incidents by contributing factor
 </section>
 <section id="how-many-vehicles-were-involved-per-crash" class="level4">
 <h4 class="anchored" data-anchor-id="how-many-vehicles-were-involved-per-crash">How many vehicles were involved per crash?</h4>
+<p>We can also examine how many vehicles were involved per crash, and plot the distribution:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Collision_id, <span class="at">name =</span> <span class="st">"Vehicles"</span>) <span class="sc">%&gt;%</span> <span class="co"># Count vehicles per collision</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Vehicles, <span class="at">name =</span> <span class="st">"Crashes"</span>) <span class="sc">%&gt;%</span> <span class="co"># Count collisions for each number of vehicles</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Proportion =</span> Crashes<span class="sc">/</span><span class="fu">sum</span>(Crashes),</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">Label =</span> <span class="fu">paste0</span>(scales<span class="sc">::</span><span class="fu">percent</span>(Proportion),<span class="st">"</span><span class="sc">\n</span><span class="st">(n="</span>,Crashes,<span class="st">")"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Vehicles, <span class="at">y =</span> Crashes, <span class="at">label =</span> Label)) <span class="sc">+</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of vehicles involved"</span>) <span class="sc">+</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">nudge_y =</span> <span class="dv">3000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">count</span>(vehicle_dat, Collision_id, <span class="at">name =</span> <span class="st">"Vehicles"</span>) <span class="sc">%&gt;%</span> <span class="co"># Count vehicles per collision</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Vehicles, <span class="at">name =</span> <span class="st">"Crashes"</span>) <span class="sc">%&gt;%</span> <span class="co"># Count collisions for each number of vehicles</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Proportion =</span> Crashes<span class="sc">/</span><span class="fu">sum</span>(Crashes),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">Label =</span> <span class="fu">paste0</span>(scales<span class="sc">::</span><span class="fu">percent</span>(Proportion),<span class="st">"</span><span class="sc">\n</span><span class="st">(n="</span>,Crashes,<span class="st">")"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Vehicles, <span class="at">y =</span> Crashes, <span class="at">label =</span> Label)) <span class="sc">+</span> </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of vehicles involved"</span>) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">nudge_y =</span> <span class="dv">3000</span>, <span class="at">size =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-incidents-by-vehicles-involved" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -579,12 +613,12 @@ Figure&nbsp;6: Incidents by number of vehicles involved
 <h2 class="anchored" data-anchor-id="mapping">Mapping</h2>
 <p>Finally, let’s map the data! We’ll begin by filtering out crashes missing location data, or with location (0,0):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat <span class="ot">&lt;-</span> <span class="fu">filter</span>(crash_dat, Latitude <span class="sc">!=</span> <span class="dv">0</span>, Longitude <span class="sc">!=</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat <span class="ot">&lt;-</span> <span class="fu">filter</span>(crash_dat, Latitude <span class="sc">!=</span> <span class="dv">0</span>, Longitude <span class="sc">!=</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The easiest way to check for outliers is simply to plot the data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crash_map_dat, <span class="fu">aes</span>(<span class="at">x=</span>Longitude, <span class="at">y=</span>Latitude)) <span class="sc">+</span> </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.05</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="co"># Small/transparent to handle overplotting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crash_map_dat, <span class="fu">aes</span>(<span class="at">x=</span>Longitude, <span class="at">y=</span>Latitude)) <span class="sc">+</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="fl">0.05</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="co"># Small/transparent to handle overplotting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-basic-map" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -603,21 +637,21 @@ Figure&nbsp;7: Crash locations
 <h3 class="anchored" data-anchor-id="individual-crashes">Individual crashes</h3>
 <p>We can improve our map by incorporating actual map data for New York City. Fortunately, most of the heavy lifting has already been done for us by the <code>nycgeo</code> package! Among other things, this package can split the geography up according to different types of administrative boundaries, from boroughs all the way down to invidual census tracts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load NYC map data (https://nycgeo.mattherman.info/index.html)</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>map_dat <span class="ot">&lt;-</span> <span class="fu">nyc_boundaries</span>(<span class="at">geography =</span> <span class="st">"tract"</span>) <span class="co"># Split into census tracts</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add simple features (sf) to our data set</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>crash_map_dat <span class="ot">&lt;-</span> crash_map_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"Longitude"</span>,<span class="st">"Latitude"</span>), </span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs=</span><span class="dv">4326</span>,</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load NYC map data (https://nycgeo.mattherman.info/index.html)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>map_dat <span class="ot">&lt;-</span> <span class="fu">nyc_boundaries</span>(<span class="at">geography =</span> <span class="st">"tract"</span>) <span class="co"># Split into census tracts</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add simple features (sf) to our data set</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>crash_map_dat <span class="ot">&lt;-</span> crash_map_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"Longitude"</span>,<span class="st">"Latitude"</span>), </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs=</span><span class="dv">4326</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can now overlay individual crashes as points on a map of census tracts:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> crash_map_dat) <span class="sc">+</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> map_dat, <span class="at">mapping =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">size =</span> <span class="fl">0.025</span>, <span class="at">alpha =</span> <span class="fl">0.25</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span> </span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> crash_map_dat) <span class="sc">+</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> map_dat, <span class="at">mapping =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">size =</span> <span class="fl">0.025</span>, <span class="at">alpha =</span> <span class="fl">0.25</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span> </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
 </div>
@@ -625,7 +659,7 @@ Figure&nbsp;7: Crash locations
 <div id="fig-advanced-map" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-advanced-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="index_files/figure-html/fig-advanced-map-1.png" class="img-fluid figure-img" width="672">
+<img src="index_files/figure-html/fig-advanced-map-1.png" class="img-fluid figure-img" style="width:150.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-advanced-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;8: Crash locations
@@ -636,13 +670,13 @@ Figure&nbsp;8: Crash locations
 </div>
 <p>Plotting crashes as individual points is useful for identifying where crashes occurred, but things get muddled by the sheer number of data points, especially where the data get dense (e.g., basically all of Manhattan).</p>
 </section>
-<section id="choropleth" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth">Choropleth</h3>
-<p>The solution is to aggregate the data by dividing the map into subsections and coloring them based on the number of crashes. We’ll define the subsections based on census tracts, thus making a choropleth!</p>
+<section id="choropleth-map" class="level3">
+<h3 class="anchored" data-anchor-id="choropleth-map">Choropleth map</h3>
+<p>The solution is to aggregate the data by dividing the map into subsections and coloring them based on the number of crashes. We’ll define the subsections based on census tracts, thus making a choropleth map!</p>
 <p>We’ll also need a way to identify which tract each crash occurred in, since our data only includes the lat/lon of the crash. Fortunately, <code>nyc_point_poly()</code> will do just this!</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat_tract <span class="ot">&lt;-</span> <span class="fu">nyc_point_poly</span>(crash_map_dat, <span class="st">"tract"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat_tract <span class="ot">&lt;-</span> <span class="fu">nyc_point_poly</span>(crash_map_dat, <span class="st">"tract"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
 </div>
@@ -652,11 +686,11 @@ Figure&nbsp;8: Crash locations
 <div class="cell-output cell-output-stderr">
 <pre><code>old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>crashes_by_tract <span class="ot">&lt;-</span> crash_map_dat_tract <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(tract_id, <span class="at">name =</span> <span class="st">"Crashes"</span>, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(crashes_by_tract, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>crashes_by_tract <span class="ot">&lt;-</span> crash_map_dat_tract <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(tract_id, <span class="at">name =</span> <span class="st">"Crashes"</span>, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(crashes_by_tract, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-crashes-per-tract" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-crashes-per-tract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -677,13 +711,13 @@ Table&nbsp;3: Crashes per tract
 <!-- Can we predict number of crashes by tract characteristics (e.g., income/poverty)? -->
 <p>Now we’ll join this with our map data and plot:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(map_dat,crashes_by_tract) <span class="sc">%&gt;%</span> </span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Crashes)) <span class="sc">+</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>() <span class="sc">+</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>)) <span class="co"># Position legend in blank area of plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(map_dat,crashes_by_tract) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Crashes)) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>() <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>)) <span class="co"># Position legend in blank area of plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(tract_id)`
 old-style crs object detected; please recreate object with a recent
@@ -702,63 +736,14 @@ Figure&nbsp;9: Crashes by census tract
 </div>
 </div>
 </div>
-<p>We can see a couple of tracts with high rates of crashes relative to the surrounding areas (e.g., the long tract between Brooklyn and Queens that seems to correspond to Flushing Meadows Corona Park). I’m guessing that some of these high rates of crashes may be due to freeways/expressways running through the tracts in question. Conveniently, the data set includes the names of the street on which each crash occurred! Let’s look at the street with the most crashes in the top 20 tracts by crashes:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat_tract <span class="sc">%&gt;%</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(tract_id, On_street_name, <span class="at">name =</span> <span class="st">"Crashes"</span>, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(On_street_name) <span class="sc">%&gt;%</span> </span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tract_id <span class="sc">%in%</span> <span class="fu">head</span>(crashes_by_tract<span class="sc">$</span>tract_id,<span class="dv">20</span>)) <span class="sc">%&gt;%</span> <span class="co"># Top 20 tracts</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> Crashes, <span class="at">n=</span><span class="dv">1</span>, <span class="at">by =</span> tract_id) <span class="co"># Street w/ most crashes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="tbl-street-crashes-per-tract" class="cell quarto-float anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-street-crashes-per-tract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Street with most crashes per tract
-</figcaption>
-<div aria-describedby="tbl-street-crashes-per-tract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["tract_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["On_street_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Crashes"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"038302","2":"GRAND CENTRAL PKWY","3":"194"},{"1":"030600","2":"BELT PARKWAY","3":"128"},{"1":"009300","2":"BRUCKNER BOULEVARD","3":"126"},{"1":"001900","2":"BRUCKNER BOULEVARD","3":"98"},{"1":"043500","2":"MAJOR DEEGAN EXPRESSWAY","3":"79"},{"1":"001800","2":"GOWANUS EXPY (BQE)","3":"74"},{"1":"110400","2":"LINDEN BOULEVARD","3":"72"},{"1":"006300","2":"MAJOR DEEGAN EXPRESSWAY","3":"70"},{"1":"024700","2":"FULTON STREET","3":"52"},{"1":"044900","2":"BROOKLYN QUEENS EXPRESSWAY","3":"52"},{"1":"014300","2":"CENTRAL PARK WEST","3":"50"},{"1":"021800","2":"CROSS BRONX EXPY","3":"42"},{"1":"028300","2":"MAJOR DEEGAN EXPRESSWAY","3":"41"},{"1":"003300","2":"CANAL STREET","3":"38"},{"1":"002100","2":"BROOKLYN QUEENS EXPRESSWAY","3":"31"},{"1":"019900","2":"LONG ISLAND EXPRESSWAY","3":"31"},{"1":"004300","2":"ATLANTIC AVENUE","3":"30"},{"1":"012500","2":"GRAND CENTRAL PKWY","3":"26"},{"1":"000700","2":"BROOKLYN QUEENS EXPRESSWAY","3":"25"},{"1":"011900","2":"3 AVENUE","3":"14"},{"1":"011900","2":"4 AVENUE","3":"14"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</figure>
-</div>
-</div>
-<p>As expected, in the tracts with the most crashes, the street with the most crashes tends to be a parkway/expressway.</p>
-<p>While we’re at it, let’s look at the top 50 streets for crashes citywide. We’ll use the full data set (<code>crash_dat</code>) to include cases where the street was recorded but the latitude/longitude were not.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>crash_dat <span class="sc">%&gt;%</span> </span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(On_street_name) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">On_street_name =</span> <span class="fu">str_to_title</span>(On_street_name)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(On_street_name, <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="tbl-street-crashes" class="cell quarto-float anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-street-crashes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5: Street with most crashes citywide
-</figcaption>
-<div aria-describedby="tbl-street-crashes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["On_street_name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Crashes"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Belt Parkway","2":"1348"},{"1":"Brooklyn Queens Expressway","2":"905"},{"1":"Broadway","2":"841"},{"1":"Long Island Expressway","2":"835"},{"1":"Atlantic Avenue","2":"717"},{"1":"Fdr Drive","2":"694"},{"1":"Grand Central Pkwy","2":"658"},{"1":"Cross Island Parkway","2":"555"},{"1":"3 Avenue","2":"547"},{"1":"Major Deegan Expressway","2":"525"},{"1":"Linden Boulevard","2":"486"},{"1":"Northern Boulevard","2":"433"},{"1":"Henry Hudson Parkway","2":"429"},{"1":"Van Wyck Expwy","2":"418"},{"1":"Staten Island Expressway","2":"408"},{"1":"Bruckner Boulevard","2":"386"},{"1":"Flatbush Avenue","2":"384"},{"1":"Cross Bronx Expy","2":"351"},{"1":"Jamaica Avenue","2":"340"},{"1":"Bruckner Expressway","2":"333"},{"1":"Queens Boulevard","2":"331"},{"1":"Eastern Parkway","2":"313"},{"1":"2 Avenue","2":"310"},{"1":"Bronx River Parkway","2":"310"},{"1":"Verrazano Bridge Upper","2":"310"},{"1":"Bushwick Avenue","2":"309"},{"1":"Bedford Avenue","2":"303"},{"1":"Fulton Street","2":"303"},{"1":"Hylan Boulevard","2":"301"},{"1":"Triborough Bridge","2":"300"},{"1":"Nostrand Avenue","2":"296"},{"1":"4 Avenue","2":"290"},{"1":"Myrtle Avenue","2":"266"},{"1":"Utica Avenue","2":"266"},{"1":"Jerome Avenue","2":"250"},{"1":"Jackie Robinson Pkwy","2":"242"},{"1":"5 Avenue","2":"239"},{"1":"Amsterdam Avenue","2":"238"},{"1":"Pennsylvania Avenue","2":"229"},{"1":"Grand Concourse","2":"225"},{"1":"Kings Highway","2":"224"},{"1":"Ocean Parkway","2":"224"},{"1":"Liberty Avenue","2":"222"},{"1":"Grand Central Parkway","2":"221"},{"1":"Metropolitan Avenue","2":"216"},{"1":"Park Avenue","2":"216"},{"1":"Webster Avenue","2":"214"},{"1":"Rockaway Boulevard","2":"210"},{"1":"8 Avenue","2":"209"},{"1":"1 Avenue","2":"206"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</figure>
-</div>
-</div>
 <p>We can use a similar approach to plot other variables by tract. Let’s look at the total number of injuries reported per tract:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>injuries_by_tract <span class="ot">&lt;-</span> crash_map_dat_tract <span class="sc">%&gt;%</span> </span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tract_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Injuries =</span><span class="fu">sum</span>(Number_of_persons_injured)) <span class="sc">%&gt;%</span> </span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(injuries_by_tract, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>injuries_by_tract <span class="ot">&lt;-</span> crash_map_dat_tract <span class="sc">%&gt;%</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tract_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Injuries =</span><span class="fu">sum</span>(Number_of_persons_injured)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(injuries_by_tract, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -768,13 +753,13 @@ Table&nbsp;5: Street with most crashes citywide
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(map_dat,injuries_by_tract) <span class="sc">%&gt;%</span> </span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Injuries)) <span class="sc">+</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>() <span class="sc">+</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>)) <span class="co"># Position legend in blank area of plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(map_dat,injuries_by_tract) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Injuries)) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>() <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>)) <span class="co"># Position legend in blank area of plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(tract_id)`
 old-style crs object detected; please recreate object with a recent
@@ -796,17 +781,17 @@ Figure&nbsp;10: Injuries by census tract
 </section>
 <section id="heatmap" class="level3">
 <h3 class="anchored" data-anchor-id="heatmap">Heatmap</h3>
-<p>For comparison, we can also make a heatmap. Same basic idea as the choropleth (i.e., colors represent number of crashes per area), but the areas are formed by dividing the geography up into regular polygons, rather than using real-world divisions like census tracts.</p>
+<p>For comparison, we can also make a heatmap. Same basic idea as the choropleth map (i.e., colors represent number of crashes per area), but the areas are formed by dividing the geography up into regular polygons, rather than using real-world divisions like census tracts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> map_dat, <span class="at">mapping =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hex</span>(<span class="at">data =</span> <span class="fu">filter</span>(crash_dat, Latitude <span class="sc">!=</span> <span class="dv">0</span>, Longitude <span class="sc">!=</span> <span class="dv">0</span>), </span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">aes</span>(<span class="at">x=</span>Longitude,<span class="at">y=</span>Latitude),</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">binwidth=</span><span class="fl">0.005</span>) <span class="sc">+</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">+</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()<span class="sc">+</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> map_dat, <span class="at">mapping =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hex</span>(<span class="at">data =</span> <span class="fu">filter</span>(crash_dat, Latitude <span class="sc">!=</span> <span class="dv">0</span>, Longitude <span class="sc">!=</span> <span class="dv">0</span>), </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">aes</span>(<span class="at">x=</span>Longitude,<span class="at">y=</span>Latitude),</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">binwidth=</span><span class="fl">0.005</span>) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"A"</span>) <span class="sc">+</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()<span class="sc">+</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.815</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
 </div>
@@ -823,20 +808,72 @@ Figure&nbsp;11: Crashes by location (heatmap)
 </div>
 </div>
 </div>
-<p>Personally, I like the choropleth better; it’s easier to see how the distribution of crashes maps onto the actual geography of the city.</p>
+<p>Personally, I like the choropleth map better; it’s easier to see how the distribution of crashes maps onto the actual geography of the city.</p>
+</section>
+<section id="crashes-by-street-and-tract" class="level3">
+<h3 class="anchored" data-anchor-id="crashes-by-street-and-tract">Crashes by street and tract</h3>
+<p>In both of our choropleth maps, we can see a couple of tracts with high rates of crashes relative to the surrounding areas (e.g., the long tract between Brooklyn and Queens that seems to correspond to Flushing Meadows Corona Park). I’m guessing that some of these high rates of crashes may be due to freeways and expressways running through the tracts in question. Conveniently, the data set includes the names of the street on which each crash occurred! Let’s look at the street with the most crashes in the top 20 tracts by crashes:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>crash_map_dat_tract <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(tract_id, On_street_name, <span class="at">name =</span> <span class="st">"Crashes"</span>, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(On_street_name) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tract_id <span class="sc">%in%</span> <span class="fu">head</span>(crashes_by_tract<span class="sc">$</span>tract_id,<span class="dv">20</span>)) <span class="sc">%&gt;%</span> <span class="co"># Top 20 tracts</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> Crashes, <span class="at">n=</span><span class="dv">1</span>, <span class="at">by =</span> tract_id) <span class="co"># Street w/ most crashes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-street-crashes-per-tract" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-street-crashes-per-tract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Street with most crashes per tract
+</figcaption>
+<div aria-describedby="tbl-street-crashes-per-tract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["tract_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["On_street_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Crashes"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"038302","2":"GRAND CENTRAL PKWY","3":"194"},{"1":"030600","2":"BELT PARKWAY","3":"128"},{"1":"009300","2":"BRUCKNER BOULEVARD","3":"126"},{"1":"001900","2":"BRUCKNER BOULEVARD","3":"98"},{"1":"043500","2":"MAJOR DEEGAN EXPRESSWAY","3":"79"},{"1":"001800","2":"GOWANUS EXPY (BQE)","3":"74"},{"1":"110400","2":"LINDEN BOULEVARD","3":"72"},{"1":"006300","2":"MAJOR DEEGAN EXPRESSWAY","3":"70"},{"1":"024700","2":"FULTON STREET","3":"52"},{"1":"044900","2":"BROOKLYN QUEENS EXPRESSWAY","3":"52"},{"1":"014300","2":"CENTRAL PARK WEST","3":"50"},{"1":"021800","2":"CROSS BRONX EXPY","3":"42"},{"1":"028300","2":"MAJOR DEEGAN EXPRESSWAY","3":"41"},{"1":"003300","2":"CANAL STREET","3":"38"},{"1":"002100","2":"BROOKLYN QUEENS EXPRESSWAY","3":"31"},{"1":"019900","2":"LONG ISLAND EXPRESSWAY","3":"31"},{"1":"004300","2":"ATLANTIC AVENUE","3":"30"},{"1":"012500","2":"GRAND CENTRAL PKWY","3":"26"},{"1":"000700","2":"BROOKLYN QUEENS EXPRESSWAY","3":"25"},{"1":"011900","2":"3 AVENUE","3":"14"},{"1":"011900","2":"4 AVENUE","3":"14"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>As expected, in the tracts with the most crashes, the street with the most crashes tends to be a parkway or expressway.</p>
+<p>While we’re at it, let’s look at the top 50 streets for crashes citywide. We’ll use the full data set (<code>crash_dat</code>) to include cases where the street was recorded but the latitude/longitude were not.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>crash_dat <span class="sc">%&gt;%</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(On_street_name) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">On_street_name =</span> <span class="fu">str_to_title</span>(On_street_name)) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(On_street_name, <span class="at">sort =</span> <span class="cn">TRUE</span>, <span class="at">name =</span> <span class="st">"Crashes"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-street-crashes" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-street-crashes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Street with most crashes citywide
+</figcaption>
+<div aria-describedby="tbl-street-crashes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["On_street_name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Crashes"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Belt Parkway","2":"1348"},{"1":"Brooklyn Queens Expressway","2":"905"},{"1":"Broadway","2":"841"},{"1":"Long Island Expressway","2":"835"},{"1":"Atlantic Avenue","2":"717"},{"1":"Fdr Drive","2":"694"},{"1":"Grand Central Pkwy","2":"658"},{"1":"Cross Island Parkway","2":"555"},{"1":"3 Avenue","2":"547"},{"1":"Major Deegan Expressway","2":"525"},{"1":"Linden Boulevard","2":"486"},{"1":"Northern Boulevard","2":"433"},{"1":"Henry Hudson Parkway","2":"429"},{"1":"Van Wyck Expwy","2":"418"},{"1":"Staten Island Expressway","2":"408"},{"1":"Bruckner Boulevard","2":"386"},{"1":"Flatbush Avenue","2":"384"},{"1":"Cross Bronx Expy","2":"351"},{"1":"Jamaica Avenue","2":"340"},{"1":"Bruckner Expressway","2":"333"},{"1":"Queens Boulevard","2":"331"},{"1":"Eastern Parkway","2":"313"},{"1":"2 Avenue","2":"310"},{"1":"Bronx River Parkway","2":"310"},{"1":"Verrazano Bridge Upper","2":"310"},{"1":"Bushwick Avenue","2":"309"},{"1":"Bedford Avenue","2":"303"},{"1":"Fulton Street","2":"303"},{"1":"Hylan Boulevard","2":"301"},{"1":"Triborough Bridge","2":"300"},{"1":"Nostrand Avenue","2":"296"},{"1":"4 Avenue","2":"290"},{"1":"Myrtle Avenue","2":"266"},{"1":"Utica Avenue","2":"266"},{"1":"Jerome Avenue","2":"250"},{"1":"Jackie Robinson Pkwy","2":"242"},{"1":"5 Avenue","2":"239"},{"1":"Amsterdam Avenue","2":"238"},{"1":"Pennsylvania Avenue","2":"229"},{"1":"Grand Concourse","2":"225"},{"1":"Kings Highway","2":"224"},{"1":"Ocean Parkway","2":"224"},{"1":"Liberty Avenue","2":"222"},{"1":"Grand Central Parkway","2":"221"},{"1":"Metropolitan Avenue","2":"216"},{"1":"Park Avenue","2":"216"},{"1":"Webster Avenue","2":"214"},{"1":"Rockaway Boulevard","2":"210"},{"1":"8 Avenue","2":"209"},{"1":"1 Avenue","2":"206"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 </section>
 </section>
 </section>
 <section id="future-directions" class="level1">
 <h1>Future Directions</h1>
-<p>What we’ve done so far barely scratches the surface of the data set. Here’s a handful of ways I’d like to explore the data further (these may be featured in future blog posts):</p>
+<p>What we’ve done so far barely scratches the surface of the data set; I went for breadth over depth in this post. Here’s a handful of ways I’d like to explore the data further (these may be featured in future blog posts):</p>
 <ul>
 <li>Incorporate data from previous years and examine whether number of crashes/injuries/fatalities changes with start/end of daylight savings time.</li>
 <li>Explore whether specific vehicle types or contributing factors predict greater likelihood of injuries/fatalities.</li>
 <li>Combine with other data sets
 <ul>
 <li>Road hours by vehicle type: are certain vehicle types disproportionately likely to be involved in crashes?</li>
-<li>Census tract data: does income predict frequency of crashes?</li>
+<li>Census tract data: do tract characteristics (e.g., income, employment) predict frequency of crashes?</li>
 </ul></li>
 <li>Interactivity! Use <code>leaflet</code> and <code>shiny</code> to build an interactive map of crash data, allowing users to zoom/scroll the map and filter by date range, vehicle type, contributing factor, and more.</li>
 </ul>

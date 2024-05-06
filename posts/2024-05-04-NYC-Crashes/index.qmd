@@ -1,18 +1,22 @@
 ---
 title: "NYC Crash Data"
+description: "Exploring a data set of motor vehicle crashes in New York City"
 author: "Jack Strelich"
+date: 2024-05-06
+categories: [R, Data Cleaning, Data Visualization, Mapping]
 format: 
   html: 
     df-print: paged
+image: "index_files/figure-html/fig-choropleth-1.png"
 ---
 
 # Overview
 
-This post will explore a data set of motor vehicle crashes in New York City obtained via [data.gov](https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes). This data set interested me for two reasons. First, it's quite comprehensive, covering all crashes resulting in injury and/or over $1000 in damage since mid-2012. Second, it's messy in a way that's very representative of real-world data (and very hard to replicate with more "shrink-wrapped" data sets).
+In this post, I'll explore a data set of motor vehicle crashes in New York City obtained via [data.gov](https://catalog.data.gov/dataset/motor-vehicle-collisions-crashes). This data set interested me for two reasons. First, it's quite comprehensive, covering all crashes resulting in injury and/or over $1000 in damage since mid-2012. Second, it's messy in a way that's very representative of real-world data (and very hard to replicate with more "shrink-wrapped" data sets).
 
-My goals for this analysis were to perform some basic data cleaning, get some insights from the data, and practice a type of visualization I don't get to use very often in my day job: the [choropleth](https://en.wikipedia.org/wiki/Choropleth_map)!
+My goals for this analysis were to perform some basic data cleaning, get some insights from the data, and practice a type of visualization I don't get to use very often in my day job: the [choropleth map](https://en.wikipedia.org/wiki/Choropleth_map)!
 
-We'll starting by loading some packages:
+To start, we'll load the packages we need:
 
 ```{r}
 #| label: setup
@@ -84,7 +88,15 @@ ggplot(crash_dat, aes(x = month(Crash_date, label = TRUE))) +
 ```
 
 
-No obvious differences by month/season! Let's also see what time incidents occurred, and whether this varied by month. To help us compare months, we'll use a ridgeline plot[^ridgeline], via `ggridges::geom_density_ridges()`:
+No obvious differences by month/season! Next, let's consider crash times. Looking at raw crash time data, there seems to be an unusually high number of crashes at exactly midnight (`00:00`):
+
+```{r}
+count(crash_dat, Crash_time,sort = TRUE) %>% head(n=10)
+```
+
+In fact, we see almost twice as many crashes reported at midnight as at 5pm! This makes me suspect that in at least some cases a crash time of `00:00` represents missing data; for the purposes of this graph, we'll exclude them. 
+
+Now to see whether the time that incidents occurred varied by month. To help us compare months, we'll use a ridgeline plot[^ridgeline], via `ggridges::geom_density_ridges()`:
 
 [^ridgeline]: Obligatory reference to [that one Joy Division album cover](https://en.wikipedia.org/wiki/Unknown_Pleasures#Artwork_and_packaging).
 
@@ -95,6 +107,7 @@ No obvious differences by month/season! Let's also see what time incidents occur
 #| warning: false
 
 crash_dat %>% 
+  filter(Crash_time > 0) %>% 
   mutate(Crash_month = month(Crash_date, label = TRUE)) %>% 
   ggplot(aes(x=Crash_time, 
              color=Crash_month,
@@ -265,6 +278,8 @@ Here, we can draw more inferences from the data alone. Distracted driving seems 
 
 #### How many vehicles were involved per crash?
 
+We can also examine how many vehicles were involved per crash, and plot the distribution:
+
 ```{r}
 #| label: fig-incidents-by-vehicles-involved
 #| fig-cap: "Incidents by number of vehicles involved"
@@ -275,7 +290,7 @@ count(vehicle_dat, Collision_id, name = "Vehicles") %>% # Count vehicles per col
          Label = paste0(scales::percent(Proportion),"\n(n=",Crashes,")")) %>% 
   ggplot(aes(x = Vehicles, y = Crashes, label = Label)) + 
   geom_col() + labs(x = "Number of vehicles involved") +
-  geom_text(nudge_y = 3000)
+  geom_text(nudge_y = 3000, size = 3)
 ```
 
 Perhaps unsurprisingly, the majority of crashes involved two vehicles; crashes involving three or more vehicles were relatively rare (<10% of crashes).
@@ -325,6 +340,7 @@ We can now overlay individual crashes as points on a map of census tracts:
 ```{r}
 #| label: fig-advanced-map
 #| fig-cap: "Crash locations"
+#| out-width: "150%"
 
 ggplot(data = crash_map_dat) + 
   geom_sf(data = map_dat, mapping = NULL) +
@@ -334,9 +350,9 @@ ggplot(data = crash_map_dat) +
 
 Plotting crashes as individual points is useful for identifying where crashes occurred, but things get muddled by the sheer number of data points, especially where the data get dense (e.g., basically all of Manhattan). 
 
-### Choropleth
+### Choropleth map
 
-The solution is to aggregate the data by dividing the map into subsections and coloring them based on the number of crashes. We'll define the subsections based on census tracts, thus making a choropleth!
+The solution is to aggregate the data by dividing the map into subsections and coloring them based on the number of crashes. We'll define the subsections based on census tracts, thus making a choropleth map!
 
 We'll also need a way to identify which tract each crash occurred in, since our data only includes the lat/lon of the crash. Fortunately, `nyc_point_poly()` will do just this!
 
@@ -372,34 +388,6 @@ left_join(map_dat,crashes_by_tract) %>%
   theme(legend.position = c(0.2,0.815)) # Position legend in blank area of plot
 ```
 
-We can see a couple of tracts with high rates of crashes relative to the surrounding areas (e.g., the long tract between Brooklyn and Queens that seems to correspond to Flushing Meadows Corona Park). I'm guessing that some of these high rates of crashes may be due to freeways/expressways running through the tracts in question. Conveniently, the data set includes the names of the street on which each crash occurred! Let's look at the street with the most crashes in the top 20 tracts by crashes:
-
-```{r}
-#| label: tbl-street-crashes-per-tract
-#| tbl-cap: "Street with most crashes per tract"
-
-crash_map_dat_tract %>%
-  count(tract_id, On_street_name, name = "Crashes", sort = TRUE) %>% 
-  drop_na(On_street_name) %>% 
-  filter(tract_id %in% head(crashes_by_tract$tract_id,20)) %>% # Top 20 tracts
-  slice_max(order_by = Crashes, n=1, by = tract_id) # Street w/ most crashes
-```
-
-As expected, in the tracts with the most crashes, the street with the most crashes tends to be a parkway/expressway. 
-
-While we're at it, let's look at the top 50 streets for crashes citywide. We'll use the full data set (`crash_dat`) to include cases where the street was recorded but the latitude/longitude were not.
-
-```{r}
-#| label: tbl-street-crashes
-#| tbl-cap: "Street with most crashes citywide"
-
-crash_dat %>% 
-  drop_na(On_street_name) %>% 
-  mutate(On_street_name = str_to_title(On_street_name)) %>% 
-  count(On_street_name, sort = TRUE, name = "Crashes") %>% 
-  head(n=50)
-```
-
 We can use a similar approach to plot other variables by tract. Let's look at the total number of injuries reported per tract:
 
 ```{r}
@@ -429,7 +417,7 @@ left_join(map_dat,injuries_by_tract) %>%
 
 ### Heatmap
 
-For comparison, we can also make a heatmap. Same basic idea as the choropleth (i.e., colors represent number of crashes per area), but the areas are formed by dividing the geography up into regular polygons, rather than using real-world divisions like census tracts.
+For comparison, we can also make a heatmap. Same basic idea as the choropleth map (i.e., colors represent number of crashes per area), but the areas are formed by dividing the geography up into regular polygons, rather than using real-world divisions like census tracts.
 
 ```{r}
 #| label: fig-heatmap
@@ -447,16 +435,46 @@ ggplot() +
 
 ```
 
-Personally, I like the choropleth better; it's easier to see how the distribution of crashes maps onto the actual geography of the city.
+Personally, I like the choropleth map better; it's easier to see how the distribution of crashes maps onto the actual geography of the city.
+
+### Crashes by street and tract
+
+In both of our choropleth maps, we can see a couple of tracts with high rates of crashes relative to the surrounding areas (e.g., the long tract between Brooklyn and Queens that seems to correspond to Flushing Meadows Corona Park). I'm guessing that some of these high rates of crashes may be due to freeways and expressways running through the tracts in question. Conveniently, the data set includes the names of the street on which each crash occurred! Let's look at the street with the most crashes in the top 20 tracts by crashes:
+
+```{r}
+#| label: tbl-street-crashes-per-tract
+#| tbl-cap: "Street with most crashes per tract"
+
+crash_map_dat_tract %>%
+  count(tract_id, On_street_name, name = "Crashes", sort = TRUE) %>% 
+  drop_na(On_street_name) %>% 
+  filter(tract_id %in% head(crashes_by_tract$tract_id,20)) %>% # Top 20 tracts
+  slice_max(order_by = Crashes, n=1, by = tract_id) # Street w/ most crashes
+```
+
+As expected, in the tracts with the most crashes, the street with the most crashes tends to be a parkway or expressway. 
+
+While we're at it, let's look at the top 50 streets for crashes citywide. We'll use the full data set (`crash_dat`) to include cases where the street was recorded but the latitude/longitude were not.
+
+```{r}
+#| label: tbl-street-crashes
+#| tbl-cap: "Street with most crashes citywide"
+
+crash_dat %>% 
+  drop_na(On_street_name) %>% 
+  mutate(On_street_name = str_to_title(On_street_name)) %>% 
+  count(On_street_name, sort = TRUE, name = "Crashes") %>% 
+  head(n=50)
+```
 
 # Future Directions
 
-What we've done so far barely scratches the surface of the data set. Here's a handful of ways I'd like to explore the data further (these may be featured in future blog posts):
+What we've done so far barely scratches the surface of the data set; I went for breadth over depth in this post. Here's a handful of ways I'd like to explore the data further (these may be featured in future blog posts):
 
 - Incorporate data from previous years and examine whether number of crashes/injuries/fatalities changes with start/end of daylight savings time.
 - Explore whether specific vehicle types or contributing factors predict greater likelihood of injuries/fatalities.
 - Combine with other data sets
   - Road hours by vehicle type: are certain vehicle types disproportionately likely to be involved in crashes?
-  - Census tract data: does income predict frequency of crashes?
+  - Census tract data: do tract characteristics (e.g., income, employment) predict frequency of crashes?
 - Interactivity! Use `leaflet` and `shiny` to build an interactive map of crash data, allowing users to zoom/scroll the map and filter by date range, vehicle type, contributing factor, and more.
 
