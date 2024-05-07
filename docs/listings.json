@@ -2,15 +2,13 @@
   {
     "listing": "/posts.html",
     "items": [
-      "/posts/2024-05-04-NYC-Crashes/index.html",
-      "/posts/2024-02-07-TEST/index.html"
+      "/posts/2024-05-04-NYC-Crashes/index.html"
     ]
   },
   {
     "listing": "/index.html",
     "items": [
-      "/posts/2024-05-04-NYC-Crashes/index.html",
-      "/posts/2024-02-07-TEST/index.html"
+      "/posts/2024-05-04-NYC-Crashes/index.html"
     ]
   }
 ]

@@ -4,7 +4,7 @@
     "href": "posts.html",
     "title": "Posts",
     "section": "",
-    "text": "NYC Crash Data\n\n\n\n\n\n\nR\n\n\nData Cleaning\n\n\nData Visualization\n\n\nMapping\n\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\n\n\nMay 6, 2024\n\n\nJack Strelich\n\n\n\n\n\n\n\n\n\n\n\n\nTPBP\n\n\n\n\n\n\nQuarto\n\n\nR\n\n\n\nTest Post Best Post\n\n\n\n\n\nFeb 7, 2024\n\n\nJack Strelich\n\n\n\n\n\n\nNo matching items"
+    "text": "NYC Crash Data\n\n\n\n\n\n\nR\n\n\nData Cleaning\n\n\nData Visualization\n\n\nMapping\n\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\n\n\nMay 6, 2024\n\n\nJack Strelich\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
@@ -18,7 +18,7 @@
     "href": "index.html#recent-posts",
     "title": "Welcome",
     "section": "Recent Posts",
-    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nNYC Crash Data\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\nJack Strelich\n\n\nMay 6, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nTPBP\n\n\nTest Post Best Post\n\n\n\nJack Strelich\n\n\nFeb 7, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\n\n See all"
+    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nNYC Crash Data\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\nJack Strelich\n\n\nMay 6, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\n\n See all"
   },
   {
     "objectID": "posts/2024-05-04-NYC-Crashes/index.html",
@@ -61,13 +61,6 @@
     "title": "NYC Crash Data",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nIn general, vroom::vroom() is much faster than read.csv(), but here we’re also limited by connection speed; it took a little over a minute to read the data in with this approach.↩︎\nThere are a number of approaches for dealing with very large (and larger-than-memory) data sets, which I hope to cover in future posts.↩︎\nObligatory reference to that one Joy Division album cover.↩︎"
-  },
-  {
-    "objectID": "posts/2024-02-07-TEST/index.html",
-    "href": "posts/2024-02-07-TEST/index.html",
-    "title": "TPBP",
-    "section": "",
-    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget nulla. Enim nulla aliquet porttitor lacus luctus. Ligula ullamcorper malesuada proin libero nunc. In metus vulputate eu scelerisque felis imperdiet proin fermentum. Vivamus arcu felis bibendum ut tristique et egestas. Pellentesque elit ullamcorper dignissim cras tincidunt lobortis feugiat. Nunc non blandit massa enim nec. Quis hendrerit dolor magna eget est lorem ipsum dolor. Eu non diam phasellus vestibulum lorem sed risus ultricies. Sagittis vitae et leo duis ut diam quam. Gravida cum sociis natoque penatibus et magnis dis parturient.\n\nlibrary(ggplot2)\nggplot(mtcars, aes(x = hp, y = mpg)) + geom_point() + theme_minimal()\n\n\n\n\nMPG by HP\n\n\n\n\nElit scelerisque mauris pellentesque pulvinar pellentesque habitant morbi tristique. Diam vulputate ut pharetra sit amet aliquam id diam. Sagittis purus sit amet volutpat. Faucibus vitae aliquet nec ullamcorper sit amet risus nullam eget. Nulla facilisi morbi tempus iaculis urna. Viverra adipiscing at in tellus integer feugiat scelerisque varius morbi. Mollis aliquam ut porttitor leo a diam. Vitae et leo duis ut. Natoque penatibus et magnis dis parturient montes nascetur. Nisl rhoncus mattis rhoncus urna neque viverra justo nec.\n\n# Let's check the distro!\nstem(mtcars$mpg)\n\n\n  The decimal point is at the |\n\n  10 | 44\n  12 | 3\n  14 | 3702258\n  16 | 438\n  18 | 17227\n  20 | 00445\n  22 | 88\n  24 | 4\n  26 | 03\n  28 | \n  30 | 44\n  32 | 49\n\n\nAuctor neque vitae tempus quam pellentesque. Porttitor massa id neque aliquam vestibulum morbi blandit cursus risus. Id ornare arcu odio ut sem nulla pharetra. Volutpat commodo sed egestas egestas. Tellus in hac habitasse platea dictumst. Blandit aliquam etiam erat velit scelerisque. Etiam dignissim diam quis enim lobortis. Pellentesque id nibh tortor id. Amet justo donec enim diam vulputate ut pharetra sit amet. Mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan tortor. Massa massa ultricies mi quis hendrerit. Vitae proin sagittis nisl rhoncus mattis rhoncus urna. Porttitor rhoncus dolor purus non enim praesent elementum facilisis. Dui sapien eget mi proin sed libero enim sed. A diam maecenas sed enim ut sem viverra. Nibh tortor id aliquet lectus. Faucibus scelerisque eleifend donec pretium vulputate sapien nec sagittis. Interdum velit laoreet id donec ultrices tincidunt."
   },
   {
     "objectID": "about.html",
