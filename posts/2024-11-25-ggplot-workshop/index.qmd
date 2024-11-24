@@ -8,7 +8,7 @@ draft: false
 format: 
   html: 
     df-print: paged
-image: "index_files/figure-html/unnamed-chunk-36-1.png"
+image: "index_files/figure-html/fig-plot-captions-1.png"
 ---
 
 # Introduction
@@ -32,7 +32,7 @@ We'll be working with a simulated data set today (`data-viz.csv`); you can downl
 library(tidyverse) 
 
 # Load data
-main_dat <- read_csv("https://github.com/strelich/strelich.github.io/shared-data/data-viz.csv") 
+main_dat <- read_csv("data-viz.csv") 
 
 # Overview of data
 summary(main_dat)

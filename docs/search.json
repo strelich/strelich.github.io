@@ -4,7 +4,7 @@
     "href": "posts.html",
     "title": "Posts",
     "section": "",
-    "text": "NYC Crash Data\n\n\n\n\n\n\nR\n\n\nData Cleaning\n\n\nData Visualization\n\n\nMapping\n\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\n\n\nMay 6, 2024\n\n\nJack Strelich\n\n\n\n\n\n\nNo matching items"
+    "text": "Data Visualization with ggplot2\n\n\n\n\n\n\nR\n\n\nData Visualization\n\n\n\nAn introduction to data visualization with ggplot2\n\n\n\n\n\nNov 25, 2024\n\n\nJack Strelich\n\n\n\n\n\n\n\n\n\n\n\n\nNYC Crash Data\n\n\n\n\n\n\nR\n\n\nData Cleaning\n\n\nData Visualization\n\n\nMapping\n\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\n\n\nMay 6, 2024\n\n\nJack Strelich\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
@@ -18,7 +18,7 @@
     "href": "index.html#recent-posts",
     "title": "Welcome",
     "section": "Recent Posts",
-    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nNYC Crash Data\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\nJack Strelich\n\n\nMay 6, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\n\n See all"
+    "text": "Recent Posts\n\n\n\n\n\n\n\n\n\n\nData Visualization with ggplot2\n\n\nAn introduction to data visualization with ggplot2\n\n\n\nJack Strelich\n\n\nNov 25, 2024\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNYC Crash Data\n\n\nExploring a data set of motor vehicle crashes in New York City\n\n\n\nJack Strelich\n\n\nMay 6, 2024\n\n\n\n\n\n\n\n\nNo matching items\n\n\n See all"
   },
   {
     "objectID": "posts/2024-05-04-NYC-Crashes/index.html",
@@ -61,6 +61,146 @@
     "title": "NYC Crash Data",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nIn general, vroom::vroom() is much faster than read.csv(), but here we’re also limited by connection speed; it took a little over a minute to read the data in with this approach.↩︎\nThere are a number of approaches for dealing with very large (and larger-than-memory) data sets, which I hope to cover in future posts.↩︎\nObligatory reference to that one Joy Division album cover.↩︎"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html",
+    "title": "Data Visualization with ggplot2",
+    "section": "",
+    "text": "Today’s post is adapted from a workshop I ran as part of my stats fellowship in my PhD program. My goal with this post is to cover the basics of data visualization with ggplot2 (natch), but also to shed a little light on the reasoning behind effective data communication.\nIn this post, we’ll cover the basics of ggplot2, then explore how to plot distributions and summary statistics, combine different representations of data in a single plot, customize plot appearance, and export plots.\nggplot2 implements a “grammar of graphics” (Wilkinson, 2005), allowing for the specification of plots in terms of individual elements, and the iterative creation of plots (we can layer elements in one by one). At heart, plots in ggplot2 consist of data (variables) mapped to aesthetics (e.g., position, color, and shape of plot elements).\n\n\nWe’ll be working with a simulated data set today (data-viz.csv); you can download it here. All the packages we’ll need can be loaded via library(tidyverse):\n\n# Load packages\nlibrary(tidyverse) \n\n# Load data\nmain_dat &lt;- read_csv(\"data-viz.csv\") \n\n# Overview of data\nsummary(main_dat)\n\n       ID          Condition            Gender             Major          \n Min.   :  1.00   Length:300         Length:300         Length:300        \n 1st Qu.: 75.75   Class :character   Class :character   Class :character  \n Median :150.50   Mode  :character   Mode  :character   Mode  :character  \n Mean   :150.50                                                           \n 3rd Qu.:225.25                                                           \n Max.   :300.00                                                           \n      SES           Anxiety            RT       \n Min.   :1.000   Min.   : 6.00   Min.   :112.0  \n 1st Qu.:2.000   1st Qu.:13.00   1st Qu.:180.8  \n Median :3.000   Median :16.00   Median :201.0  \n Mean   :2.637   Mean   :15.71   Mean   :200.7  \n 3rd Qu.:3.000   3rd Qu.:18.00   3rd Qu.:222.0  \n Max.   :5.000   Max.   :24.00   Max.   :279.0  \n\nglimpse(main_dat)\n\nRows: 300\nColumns: 7\n$ ID        &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 1…\n$ Condition &lt;chr&gt; \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", …\n$ Gender    &lt;chr&gt; \"Male\", \"Male\", \"Male\", \"Male\", \"Female\", \"Male\", \"Male\", \"M…\n$ Major     &lt;chr&gt; \"Psyc\", \"Hist\", \"Psyc\", \"Chem\", \"Hist\", \"Hist\", \"Hist\", \"Psy…\n$ SES       &lt;dbl&gt; 4, 3, 4, 1, 1, 1, 3, 3, 2, 2, 3, 2, 1, 1, 3, 5, 3, 2, 2, 1, …\n$ Anxiety   &lt;dbl&gt; 17, 14, 16, 17, 17, 19, 19, 17, 19, 17, 20, 15, 19, 16, 15, …\n$ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 182, …\n\n\nThe data is from an imaginary psychological experiment; we have three categorical variables (Condition, Major, and Gender) and three continuous variables (SES [socio-economic status], Anxiety, and RT [reaction time]) for each of 300 imaginary participants, each with a unique identifier (ID)."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#load-data-set",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#load-data-set",
+    "title": "Data Visualization with ggplot2",
+    "section": "",
+    "text": "We’ll be working with a simulated data set today (data-viz.csv); you can download it here. All the packages we’ll need can be loaded via library(tidyverse):\n\n# Load packages\nlibrary(tidyverse) \n\n# Load data\nmain_dat &lt;- read_csv(\"data-viz.csv\") \n\n# Overview of data\nsummary(main_dat)\n\n       ID          Condition            Gender             Major          \n Min.   :  1.00   Length:300         Length:300         Length:300        \n 1st Qu.: 75.75   Class :character   Class :character   Class :character  \n Median :150.50   Mode  :character   Mode  :character   Mode  :character  \n Mean   :150.50                                                           \n 3rd Qu.:225.25                                                           \n Max.   :300.00                                                           \n      SES           Anxiety            RT       \n Min.   :1.000   Min.   : 6.00   Min.   :112.0  \n 1st Qu.:2.000   1st Qu.:13.00   1st Qu.:180.8  \n Median :3.000   Median :16.00   Median :201.0  \n Mean   :2.637   Mean   :15.71   Mean   :200.7  \n 3rd Qu.:3.000   3rd Qu.:18.00   3rd Qu.:222.0  \n Max.   :5.000   Max.   :24.00   Max.   :279.0  \n\nglimpse(main_dat)\n\nRows: 300\nColumns: 7\n$ ID        &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 1…\n$ Condition &lt;chr&gt; \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", …\n$ Gender    &lt;chr&gt; \"Male\", \"Male\", \"Male\", \"Male\", \"Female\", \"Male\", \"Male\", \"M…\n$ Major     &lt;chr&gt; \"Psyc\", \"Hist\", \"Psyc\", \"Chem\", \"Hist\", \"Hist\", \"Hist\", \"Psy…\n$ SES       &lt;dbl&gt; 4, 3, 4, 1, 1, 1, 3, 3, 2, 2, 3, 2, 1, 1, 3, 5, 3, 2, 2, 1, …\n$ Anxiety   &lt;dbl&gt; 17, 14, 16, 17, 17, 19, 19, 17, 19, 17, 20, 15, 19, 16, 15, …\n$ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 182, …\n\n\nThe data is from an imaginary psychological experiment; we have three categorical variables (Condition, Major, and Gender) and three continuous variables (SES [socio-economic status], Anxiety, and RT [reaction time]) for each of 300 imaginary participants, each with a unique identifier (ID)."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#adding-plot-elements",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#adding-plot-elements",
+    "title": "Data Visualization with ggplot2",
+    "section": "Adding plot elements",
+    "text": "Adding plot elements\nHaving mapped variables onto the x-axis and y-axis, we can create a scatterplot by adding points via geom_point():\n\n# We'll omit argument names (data, mapping) going forward\n# ggplot() assumes the first argument is data and the second is mapping\nggplot(main_dat, aes(x = Anxiety, y= RT)) + geom_point() \n\n\n\n\n\n\n\n\ngeom_point() is an example of a geom, a geometric representation of data. We’ll see a number of different geoms later!\nNext, we can set the color of the points to be based on Condition by mapping it onto color in the original aes():\n\nggplot(main_dat, aes(x = Anxiety, y = RT, color = Condition)) + \n  geom_point()\n\n\n\n\n\n\n\n\nWe can map Major to the shape of the points in the same way:\n\nggplot(main_dat, aes(x = Anxiety, y = RT, color = Condition, shape = Major)) + \n  geom_point()\n\n\n\n\n\n\n\n\nEach addition to the aesthetic specification maps a new variable onto a new aesthetic of the plot. Also notice that we now get two legends, one for color and one for shape."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#saving-plots",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#saving-plots",
+    "title": "Data Visualization with ggplot2",
+    "section": "Saving plots",
+    "text": "Saving plots\nTo save1 a plot for later use (and save ourselves a lot of copy-pasting), we can assign ggplot() output to an object:\n\nRT_by_anxiety_cond &lt;- ggplot(main_dat, aes(x = Anxiety, y = RT, \n                                           color = Condition, shape = Major)) + \n  geom_point()\n\nCalling the object then displays the plot:\n\nRT_by_anxiety_cond"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#faceting",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#faceting",
+    "title": "Data Visualization with ggplot2",
+    "section": "Faceting",
+    "text": "Faceting\nWe now have four variables (Anxiety, RT, Condition, and Major) in one plot – very efficient, but a little hard to read. One solution is to split the plot into facets, giving us a mini-plot for each level of a factor…\n\nRT_by_anxiety_cond + facet_wrap(~Major) # \"By major\"\n\n\n\n\n\n\n\n\n…or for combinations of levels of factors:\n\nRT_by_anxiety_cond + facet_grid(Major~Condition) # \"By major and condition\"\n\n\n\n\n\n\n\n\nSwitch order of variables in facet_grid() to flip arrangement of facets:\n\nRT_by_anxiety_cond + facet_grid(Condition~Major) \n\n\n\n\n\n\n\n\nNotice that all of the facets have shared (aligned) axes, allowing us to compare data (e.g., point positions) between facets!\nfacet_grid() always creates rows and columns based on the faceting variable(s) you specify, which makes it useful when you want to facet by two specific variables. In contrast, facet_wrap() will wrap the facets into rows and columns, which makes it useful when you want to facet by a single variable that has more than three or so values:\n\n# New plot for this example\nggplot(main_dat, aes(x=Anxiety,y=RT)) + geom_point() + facet_wrap(~SES)\n\n\n\n\n\n\n\n\nNotice how SES levels 4 and 5 wrap around to make a second row!"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#coordinates",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#coordinates",
+    "title": "Data Visualization with ggplot2",
+    "section": "Coordinates",
+    "text": "Coordinates\nWe can also customize the coordinate system used by our plot. Let’s force our y-axis includes zero:\n\n# To keep an auto-calculated limit, use NA\nRT_by_anxiety_cond + coord_cartesian(ylim = c(0,NA)) \n\n\n\n\n\n\n\n\nWe can swap X and Y axes using coord_flip():\n\nRT_by_anxiety_cond + coord_flip(ylim = c(0,NA)) # y-axis is now horizontal!\n\n\n\n\n\n\n\n\nOther useful coordinate systems:\n\ncoord_fixed() fixes aspect ratio of plot (good if X and Y are in same units)\ncoord_map()projects portion of globe onto 2D plane (good for maps!)"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#theme",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#theme",
+    "title": "Data Visualization with ggplot2",
+    "section": "Theme",
+    "text": "Theme\nThemes allow us to change the appearance of the plot as a whole:\n\nRT_by_anxiety_cond + theme_light() # Use light background\n\n\n\n\n\n\n\nRT_by_anxiety_cond + theme_minimal() # Omit bounding boxes\n\n\n\n\n\n\n\nRT_by_anxiety_cond + theme_classic() # More traditional style\n\n\n\n\n\n\n\n\nWe can tweak the font2 used in the plot via arguments to the theme function:\n\nRT_by_anxiety_cond + theme_classic(base_size = 9, base_family = \"serif\") \n\n\n\n\n\n\n\n\nWe can manually customize further by adding an additional theme() function:\n\nRT_by_anxiety_cond + \n  theme(legend.position = \"bottom\") # Move legend to bottom\n\n\n\n\n\n\n\nRT_by_anxiety_cond + \n  facet_grid(Condition~Major) + \n  theme(legend.position = \"none\") # Remove unnecessary legends\n\n\n\n\n\n\n\n\nVirtually every aspect of the plot’s appearance can be customized via the theme() function, from major/minor axes to tick marks to the axis titles."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#recap",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#recap",
+    "title": "Data Visualization with ggplot2",
+    "section": "Recap",
+    "text": "Recap\nLet’s pause and review how to construct a plot with ggplot():\n\nWe start by giving ggplot() a data frame (here, main_dat)\nWithin the aes() argument, we map variables to specific elements (x and y position, color, and shape)\nWe provide (at least one) geom to represent the data (here, geom_point() to get points)\nWe can facet by one (or more) variables to produce multiple plots with shared axes\nWe can specify coordinate systems (e.g., coord_flip())\nThemes let us customize overall plot appearance\n\nNext, we’ll explore how we can use these tools to visualize different types of data!"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#histograms",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#histograms",
+    "title": "Data Visualization with ggplot2",
+    "section": "Histograms",
+    "text": "Histograms\nWe can make histograms with geom_histogram(). We don’t map anything to the y-axis – R automatically maps frequency.\n\nggplot(main_dat, aes(x = Anxiety)) + # No Y aesthetic!\n  geom_histogram()\n\n`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.\n\n\n\n\n\n\n\n\n\nWe can manually set size of bins:\n\nggplot(main_dat, aes(x = Anxiety)) + \n  geom_histogram(binwidth = 2)\n\n\n\n\n\n\n\n\nWhat if we want to look at the distribution separately for each level of Condition? We can map Condition onto the fill color of the histogram via the fill aesthetic3:\n\nggplot(main_dat, aes(x = Anxiety, fill = Condition)) +\n  geom_histogram(binwidth = 2)\n\n\n\n\n\n\n\n\nThis plot’s not great – it’s hard to read counts for Control and Treatment 1. Instead, let’s try faceting:\n\nggplot(main_dat, aes(x = Anxiety, fill = Condition)) + \n  geom_histogram(binwidth = 2) + \n  facet_wrap(~Condition, ncol = 1) + # Force facets into single column\n  theme(legend.position = \"none\") # Remove superfluous legend\n\n\n\n\n\n\n\n\nThis plot makes it much easier to compare distributions between the three groups – notice that x-axis (Anxiety) scores are aligned across all three facets."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#bar-plot-of-frequencies",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#bar-plot-of-frequencies",
+    "title": "Data Visualization with ggplot2",
+    "section": "Bar plot of frequencies",
+    "text": "Bar plot of frequencies\nFor categorical variables (like Condition), we can get frequency as a bar plot using geom_bar(). Just like with histograms, we don’t map anything to the y-axis; the geom automatically calculates the height of the bars (in this case, by counting the number of cases).\n\nggplot(main_dat,aes(x = Gender)) + # No Y aesthetic!\n  geom_bar()"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#background",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#background",
+    "title": "Data Visualization with ggplot2",
+    "section": "Background",
+    "text": "Background\nUnder the hood, all geometric elements have a stat that determines how the data translates into the properties of the geom:\n\ngeom_point(): x and y coordinates of points come directly from numeric values (identity)\ngeom_histogram(): height of bin comes from number of values in bin (count)\ngeom_bar(): height of bar comes from number of values in category (count)\n\ngeom_point() creates one object for each data point, while geom_histogram() and geom_bar() use a built-in summary statistic. Sometimes, we’ll want to tweak this process (e.g., if we want to plot a different summary statistic):\n\nBarplot: height of bar from the mean of each group\nPointrange: height of point from mean of group, width of range from variability of group\n\nThere are two possible approaches here:\n\nCalculate summary statistics for each group, then plot these values\n\ndata %&gt;% group_by() %&gt;% summarize() %&gt;% ggplot()\n\nHave ggplot generate specific summary statistics for us\n\ndata %&gt;% ggplot() + stat_summary()\n\n\nToday, we’ll focus on the second approach!"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#getting-summary-statistics-on-the-fly",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#getting-summary-statistics-on-the-fly",
+    "title": "Data Visualization with ggplot2",
+    "section": "Getting summary statistics on the fly",
+    "text": "Getting summary statistics on the fly\nLet’s get a bar plot in which the bar heights represent group means (rather than frequencies):\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  stat_summary(fun = \"mean\", geom = \"bar\") # Get the mean, represent via bars\n\n\n\n\n\n\n\n\nIf we want to get fancy, we can specify summary functions that return multiple values for each group, and geoms that use all these values:\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\")\n\n\n\n\n\n\n\n\nWe use fun.data because the function we’ve specified (mean_cl_normal) returns a data frame consisting of the mean as well as the upper and lower bounds of the 95% confidence interval."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#multiple-2-geoms",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#multiple-2-geoms",
+    "title": "Data Visualization with ggplot2",
+    "section": "2 Multiple 2 Geoms",
+    "text": "2 Multiple 2 Geoms\nWe can have more than one geom in the same plot! Let’s add a line:\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  # Plot means as line, all one group\n  stat_summary(fun = \"mean\", geom = \"line\", group = 1) +\n  # Plot means/CIs as pointranges\n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\")\n\n\n\n\n\n\n\n\nNotice the line uses fun (instead of fun.data) because it represents a single summary statistic (the mean).\nWe can combine summary statistics (our pointrange and lines) with raw data (i.e., individual data points):\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\") + \n  stat_summary(fun = \"mean\", geom = \"line\", group = 1) +\n  geom_point() # Add in raw data\n\n\n\n\n\n\n\n\nTo avoid overplotting (data points directly on top of each other), we can make the points partially transparent:\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\") + \n  stat_summary(fun = \"mean\", geom = \"line\", group = 1) + \n  geom_point(alpha = .1) # 1 = opaque, 0 = fully transparent\n\n\n\n\n\n\n\n\nWe can also use a different geom to summarize the data:\n\nggplot(main_dat, aes(x = Condition, y = Anxiety)) + \n  geom_violin() + # Put first so pointranges/lines are drawn on top\n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\") + \n  stat_summary(fun = \"mean\", geom = \"line\", group = 1)"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#multiple-pointranges-multiple-lines",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#multiple-pointranges-multiple-lines",
+    "title": "Data Visualization with ggplot2",
+    "section": "Multiple pointranges, multiple lines",
+    "text": "Multiple pointranges, multiple lines\nLet’s break things down by major as well as condition!\n\nmain_dat %&gt;% \n  ggplot(aes(x = Condition, y = Anxiety, \n             color = Major, group = Major)) + # Specify how to group!\n  stat_summary(fun.data = \"mean_cl_normal\", geom = \"pointrange\") + \n  stat_summary(fun = \"mean\", geom = \"line\") + \n  geom_point(alpha = .1)\n\n\n\n\n\n\n\n\nTo make things easier to read, let’s dodge the geoms for each group (i.e., shift them slightly left/right so they’re not stacked atop each other):\n\nmain_dat %&gt;% \n  ggplot(aes(x = Condition, y = Anxiety, color = Major, group = Major)) + \n  stat_summary(fun.data = \"mean_cl_normal\", \n               geom = \"pointrange\", \n               position = position_dodge(width = .5)) + \n  stat_summary(fun = \"mean\", \n               geom = \"line\",\n               position = position_dodge(width = .5)) +\n  geom_point(alpha = .1, position = position_dodge(width = .5))\n\n\n\n\n\n\n\n\nNote that we need to specify dodge for each geom to keep things aligned!\nLet’s save this plot for later use:\n\nAnxiety_by_cond_major &lt;- main_dat %&gt;% \n  ggplot(aes(x = Condition, y = Anxiety, color = Major, group = Major)) + \n  stat_summary(fun.data = \"mean_cl_normal\", \n               geom = \"pointrange\", \n               position = position_dodge(width = .5)) + \n  stat_summary(fun = \"mean\", \n               geom = \"line\",\n               position = position_dodge(width = .5)) +\n  geom_point(alpha = .1, position = position_dodge(width = .5))\n\nNotice how we were able to build this (fairly complex) plot incrementally: we started by mapping Condition and Anxiety to the x and y axes, selected appropriate geoms to display our data (both summary statistics via stat_summary() and raw values via geom_point()), added another variable (Major) mapped onto color, and finally tweaked the geoms’ position to avoid overplotting. This process aligns nicely with how I tend to approach data visualization: I start by thinking about what variables I want to plot, then figure out how to display them via reckless experimentation."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#changing-labels",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#changing-labels",
+    "title": "Data Visualization with ggplot2",
+    "section": "Changing labels",
+    "text": "Changing labels\nWe can set labels within scale_*() functions, or by using the convenience function labs(). Let’s try this with our earlier scatterplot:\n\nRT_by_anxiety_cond + # Back to our scatterplot!\n  labs(title = \"Mean reaction time by anxiety score, condition, and major\", \n       subtitle = \"Check out my awesome subtitle!\",\n       caption = \"Can note exclusion criteria, define error bars, etc.\",\n       x = \"Anxiety score\", # List of scales and names\n       y = \"Mean reaction time (ms)\")\n\n\n\n\n\n\n\n\nNote that all of the labels display within the plot area, and are distinct from figure captions that may be generated by (e.g.) RMarkdown or Quarto. In some contexts, it may be helpful to put as much information as possible in the plot itself (e.g., for a presentation or conference poster), while in other contexts this information may be displayed in the figure caption instead (e.g., a journal article). Here’s what this same figure might look like if we took the second approach:\n\nRT_by_anxiety_cond + \n  labs(x = \"Anxiety score\", # List of scales and names\n       y = \"Mean reaction time (ms)\")\n\n\n\n\n\n\n\nFigure 1: Mean reaction time by anxiety score, condition, and major. Check out my awesome subtitle! Here’s some information about exclusion criteria, error bars, etc."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#customizing-continuous-axes",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#customizing-continuous-axes",
+    "title": "Data Visualization with ggplot2",
+    "section": "Customizing continuous axes",
+    "text": "Customizing continuous axes\nWe can add arguments to scale_*() functions to customize the upper/lower bounds, and to determine where the breaks fall:\n\nRT_by_anxiety_cond +\n  scale_y_continuous(name = \"Mean reaction time (ms)\", # Another way to label!\n                     limits = c(0,300), # Upper and lower bounds\n                     breaks = 0:6*50)  # Should give vector of break points\n\n\n\n\n\n\n\n\nIf your limits clip some of your data, you’ll get a warning:\n\nRT_by_anxiety_cond +\n  scale_y_continuous(name = \"Mean reaction time (ms)\",\n                     limits = c(0,200), # Clips off upper end of data range\n                     breaks = 0:6*50)\n\nWarning: Removed 151 rows containing missing values or values outside the scale range\n(`geom_point()`).\n\n\n\n\n\n\n\n\n\nIf you are calculating summary statistics via stat_summary(), data that gets clipped off won’t be included in summary statistics, which can skew results. It’s a good idea to set the “window” via coord instead:\n\nRT_by_anxiety_cond + \n  coord_cartesian(ylim = c(0,200))"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#customizing-discrete-axes",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#customizing-discrete-axes",
+    "title": "Data Visualization with ggplot2",
+    "section": "Customizing discrete axes",
+    "text": "Customizing discrete axes\nWe can manually relabel levels of our discrete (categorical) x-axis. Let’s try on our pointrange plot:\n\nAnxiety_by_cond_major + # Our pointrange plot\n  scale_x_discrete(labels = c(\"0mg\", \"500mg\", \"1000mg\")) # Applied in order\n\n\n\n\n\n\n\n\nIn general, to relabel levels, tweak the scale that produced them. Here, for our scatterplot, we’ll relabel Condition (mapped onto color) and Major (mapped onto shape):\n\nRT_by_anxiety_cond + # Our scatterplot\n  scale_color_discrete(labels = c(\"0mg\", \"500mg\", \"1000mg\")) +\n  scale_shape_discrete(labels = c(\"Chemistry\",\"History\",\"Psychology\"))"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#adjusting-colors",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#adjusting-colors",
+    "title": "Data Visualization with ggplot2",
+    "section": "Adjusting colors",
+    "text": "Adjusting colors\nWe can change the palettes R uses for colors. Let’s practice with a brand-new plot:\n\n# Create bar plot of gender frequency\nGender_plot &lt;- ggplot(main_dat, aes(x = Gender, fill = Gender)) + \n  geom_bar()\n\n# Default palette\nGender_plot\n\n\n\n\n\n\n\n# Greyscale\nGender_plot + scale_fill_grey()\n\n\n\n\n\n\n\n# Brewer\nGender_plot + scale_fill_brewer(type = \"qual\", # Qualitative palettes\n                                palette = \"Set2\") # Specific palette\n\n\n\n\n\n\n\n\nWe can also manually specify colors via scale_fill_manual(), either by name:\n\nGender_plot + \n  scale_fill_manual(values =c(\"darkorange\", \"dodgerblue\", \"green\", \"purple\"))\n\n\n\n\n\n\n\n\nOr by hex code (useful to match existing palettes such as school or corporate color schemes):\n\nGender_plot +\n  scale_fill_manual(values =c(\"#003660\", \"#FEBC11\", \"#043927\", \"#c4b581\"))\n\n\n\n\n\n\n\n\nFor ordinal variables (like SES), might make sense to use a sequential palette:\n\nggplot(main_dat, aes(x = SES, fill = factor(SES))) + # Make R treat as factor\n  geom_bar() +\n  scale_fill_brewer(type = \"seq\") # Sequential palette\n\n\n\n\n\n\n\n\nIf a factor is ordered, ggplot automatically uses scale_viridis (an excellent sequential palette):\n\n# Distribution of SES\nggplot(main_dat, aes(x = SES, fill = ordered(SES))) + \n  geom_bar()\n\n\n\n\n\n\n\n# Distribution of SES by condition\nggplot(main_dat, aes(x = Condition, fill = ordered(SES))) +\n  geom_bar()\n\n\n\n\n\n\n\n\nNotice that for all of these examples except the last, color is just for visual appeal; it doesn’t add information to the plot beyond what’s already communicated by the bars themselves. When color does convey information, it’s important to consider accessibility (e.g., whether the plot can still convey information effectively to viewers with colorblindness). Some options include using another aesthetic as a fallback (e.g., mapping the variable onto shape as well as color), faceting the plot, using a colorblind-friendly palette (such as scale_viridis)4."
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#more-ggplot2-resources",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#more-ggplot2-resources",
+    "title": "Data Visualization with ggplot2",
+    "section": "More ggplot2 resources",
+    "text": "More ggplot2 resources\n\nOfficial ggplot2 reference: First stop for specifics of ggplot2 functions!\nR Graphics Cookbook (2e): Great for anytime you ask yourself “How the heck do I do X”?\nggplot2: elegant graphics for data analysis: For when you’re ready to go deeper!\nFundamentals of Data Visualization: For big-picture questions about data visualization and communication best practices!"
+  },
+  {
+    "objectID": "posts/2024-11-25-ggplot-workshop/index.html#footnotes",
+    "href": "posts/2024-11-25-ggplot-workshop/index.html#footnotes",
+    "title": "Data Visualization with ggplot2",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\n“Save” here means “keep in memory”, not “save to disk”; we’ll cover that a little later.↩︎\nUsing custom fonts in ggplot2 is tricky, to say the least. The three options guaranteed to work on any graphic device are sans (the default), serif, and mono; anything else is a roll of the dice. I hope to cover this topic in a little more detail in a future post, since I’ve spent a good amount of time tearing my hair out over it.↩︎\nFor geoms that don’t have an “interior” (e.g., points and lines), the color aesthetic sets the color of the whole geom. For geoms that do have an interior (e.g., histograms and bars), the fill aesthetic sets the interior color and the color aesthetic sets the outline color. It can be a little tricky to remember – if specifying one aesthetic doesn’t work the way you expect, try specifying the other and see if that has the desired effect.↩︎\nDisclaimer: I am not an expert in accessibility, and cannot guarantee that these tips will make plots fully or even partially compliant with regulation regarding accessibility (e.g., the ADA). Please don’t sue me!↩︎"
   },
   {
     "objectID": "about.html",

@@ -278,7 +278,7 @@ window.Quarto = {
 <p><code>ggplot2</code> implements a “grammar of graphics” (Wilkinson, 2005), allowing for the specification of plots in terms of individual elements, and the iterative creation of plots (we can layer elements in one by one). At heart, plots in <code>ggplot2</code> consist of <strong>data</strong> (variables) mapped to <strong>aesthetics</strong> (e.g., position, color, and shape of plot elements).</p>
 <section id="load-data-set" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-set">Load data set</h2>
-<p>We’ll be working with a simulated data set today (<code>data-viz.csv</code>); you can download it <a href="www.google.com">here</a>. All the packages we’ll need can be loaded via <code>library(tidyverse)</code>:</p>
+<p>We’ll be working with a simulated data set today (<code>data-viz.csv</code>); you can download it <a href="https://github.com/strelich/strelich.github.io/shared-data/data-viz.csv">here</a>. All the packages we’ll need can be loaded via <code>library(tidyverse)</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
@@ -329,7 +329,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/basic-plot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -345,7 +345,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/basic-scatterplot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -358,7 +358,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-color-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -370,7 +370,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-color-shape-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -391,7 +391,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/call-scatterplot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -405,7 +405,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-facet-wrap-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -416,7 +416,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-facet-grid-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -427,7 +427,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-facet-grid-flipped-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -440,7 +440,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-facet-SES-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -456,7 +456,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-coords-y0-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -467,7 +467,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-coords-flip-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -486,7 +486,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-themes-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -494,7 +494,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-themes-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -502,7 +502,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-14-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-themes-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -513,7 +513,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-font-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -525,7 +525,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-custom-theme-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -535,7 +535,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scatterplot-custom-theme-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -570,7 +570,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/basic-histogram-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -582,7 +582,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/histogram-tweak-bins-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -594,7 +594,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/histogram-by-condition-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -608,7 +608,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/histogram-by-condition-faceted-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -624,7 +624,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/bar-plot-counts-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -669,7 +669,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/bar-plot-means-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -681,7 +681,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/pointrange-means-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -700,7 +700,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/multiple-geoms-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -715,7 +715,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/summaries-plus-raw-data-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -729,7 +729,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/summaries-plus-raw-data-transparent-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -743,7 +743,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/summaries-plus-violin-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -762,7 +762,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/summaries-by-condition-major-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -781,7 +781,7 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/summaries-by-condition-major-dodged-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -818,7 +818,25 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/plot-labs-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Note that all of the labels display within the plot area, and are distinct from figure captions that may be generated by (e.g.) RMarkdown or Quarto. In some contexts, it may be helpful to put as much information as possible in the plot itself (e.g., for a presentation or conference poster), while in other contexts this information may be displayed in the figure caption instead (e.g., a journal article). Here’s what this same figure might look like if we took the second approach:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span> </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Anxiety score"</span>, <span class="co"># List of scales and names</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Mean reaction time (ms)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-plot-captions" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-plot-captions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-plot-captions-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-captions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Mean reaction time by anxiety score, condition, and major. Check out my awesome subtitle! Here’s some information about exclusion criteria, error bars, etc.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -828,24 +846,24 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <h2 class="anchored" data-anchor-id="customizing-continuous-axes">Customizing continuous axes</h2>
 <p>We can add arguments to <code>scale_*()</code> functions to customize the upper/lower bounds, and to determine where the breaks fall:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"Mean reaction time (ms)"</span>, <span class="co"># Another way to label!</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">300</span>), <span class="co"># Upper and lower bounds</span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">6</span><span class="sc">*</span><span class="dv">50</span>)  <span class="co"># Should give vector of break points</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"Mean reaction time (ms)"</span>, <span class="co"># Another way to label!</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">300</span>), <span class="co"># Upper and lower bounds</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">6</span><span class="sc">*</span><span class="dv">50</span>)  <span class="co"># Should give vector of break points</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/tweak-scales-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If your limits clip some of your data, you’ll get a warning:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"Mean reaction time (ms)"</span>,</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">200</span>), <span class="co"># Clips off upper end of data range</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">6</span><span class="sc">*</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"Mean reaction time (ms)"</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">200</span>), <span class="co"># Clips off upper end of data range</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">6</span><span class="sc">*</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 151 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
@@ -853,19 +871,19 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/tweak-scales-clip-data-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If you are calculating summary statistics via <code>stat_summary()</code>, data that gets clipped off won’t be included in summary statistics, which can skew results. It’s a good idea to set the “window” via <code>coord</code> instead:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span> </span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">200</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">200</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/tweak-coords-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -875,25 +893,25 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <h2 class="anchored" data-anchor-id="customizing-discrete-axes">Customizing discrete axes</h2>
 <p>We can manually relabel levels of our discrete (categorical) x-axis. Let’s try on our pointrange plot:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>Anxiety_by_cond_major <span class="sc">+</span> <span class="co"># Our pointrange plot</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0mg"</span>, <span class="st">"500mg"</span>, <span class="st">"1000mg"</span>)) <span class="co"># Applied in order</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>Anxiety_by_cond_major <span class="sc">+</span> <span class="co"># Our pointrange plot</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0mg"</span>, <span class="st">"500mg"</span>, <span class="st">"1000mg"</span>)) <span class="co"># Applied in order</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/tweak-discrete-axes-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>In general, to relabel levels, tweak the scale that produced them. Here, for our scatterplot, we’ll relabel <code>Condition</code> (mapped onto color) and <code>Major</code> (mapped onto shape):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span> <span class="co"># Our scatterplot</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0mg"</span>, <span class="st">"500mg"</span>, <span class="st">"1000mg"</span>)) <span class="sc">+</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Chemistry"</span>,<span class="st">"History"</span>,<span class="st">"Psychology"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>RT_by_anxiety_cond <span class="sc">+</span> <span class="co"># Our scatterplot</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0mg"</span>, <span class="st">"500mg"</span>, <span class="st">"1000mg"</span>)) <span class="sc">+</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Chemistry"</span>,<span class="st">"History"</span>,<span class="st">"Psychology"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/tweak-multiple-axes-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -903,95 +921,95 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <h2 class="anchored" data-anchor-id="adjusting-colors">Adjusting colors</h2>
 <p>We can change the palettes R uses for colors. Let’s practice with a brand-new plot:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create bar plot of gender frequency</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> Gender, <span class="at">fill =</span> Gender)) <span class="sc">+</span> </span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Default palette</span></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>Gender_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create bar plot of gender frequency</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> Gender, <span class="at">fill =</span> Gender)) <span class="sc">+</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Default palette</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>Gender_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/gender-plots-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Greyscale</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> <span class="fu">scale_fill_grey</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Greyscale</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> <span class="fu">scale_fill_grey</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-37-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/gender-plots-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Brewer</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">"qual"</span>, <span class="co"># Qualitative palettes</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="co"># Specific palette</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Brewer</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">"qual"</span>, <span class="co"># Qualitative palettes</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="co"># Specific palette</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-37-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/gender-plots-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We can also manually specify colors via <code>scale_fill_manual()</code>, either by name:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> </span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span><span class="fu">c</span>(<span class="st">"darkorange"</span>, <span class="st">"dodgerblue"</span>, <span class="st">"green"</span>, <span class="st">"purple"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span> </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span><span class="fu">c</span>(<span class="st">"darkorange"</span>, <span class="st">"dodgerblue"</span>, <span class="st">"green"</span>, <span class="st">"purple"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/manual-color-scale-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Or by hex code (useful to match existing palettes such as school or corporate color schemes):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span><span class="fu">c</span>(<span class="st">"#003660"</span>, <span class="st">"#FEBC11"</span>, <span class="st">"#043927"</span>, <span class="st">"#c4b581"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Gender_plot <span class="sc">+</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span><span class="fu">c</span>(<span class="st">"#003660"</span>, <span class="st">"#FEBC11"</span>, <span class="st">"#043927"</span>, <span class="st">"#c4b581"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/hex-colors-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>For ordinal variables (like SES), might make sense to use a sequential palette:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> SES, <span class="at">fill =</span> <span class="fu">factor</span>(SES))) <span class="sc">+</span> <span class="co"># Make R treat as factor</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">"seq"</span>) <span class="co"># Sequential palette</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> SES, <span class="at">fill =</span> <span class="fu">factor</span>(SES))) <span class="sc">+</span> <span class="co"># Make R treat as factor</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">"seq"</span>) <span class="co"># Sequential palette</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/ordinal-colors-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If a factor is ordered, ggplot automatically uses <code>scale_viridis</code> (an excellent sequential palette):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of SES</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> SES, <span class="at">fill =</span> <span class="fu">ordered</span>(SES))) <span class="sc">+</span> </span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of SES by condition</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> Condition, <span class="at">fill =</span> <span class="fu">ordered</span>(SES))) <span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of SES</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> SES, <span class="at">fill =</span> <span class="fu">ordered</span>(SES))) <span class="sc">+</span> </span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-41-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/scale-viridis-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of SES by condition</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(main_dat, <span class="fu">aes</span>(<span class="at">x =</span> Condition, <span class="at">fill =</span> <span class="fu">ordered</span>(SES))) <span class="sc">+</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/scale-viridis-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1005,10 +1023,10 @@ $ RT        &lt;dbl&gt; 213, 151, 189, 240, 195, 187, 237, 178, 217, 179, 220, 1
 <p>Finally, let’s talk about exporting plots (i.e., saving them to disk). This can be done via RStudio’s menus (Plots tab <span class="math inline">\(\rightarrow\)</span> Export <span class="math inline">\(\rightarrow\)</span> Save as Image…), but I prefer to export plots programmatically via the <code>ggsave()</code> function, since I can save the code in a script and easily re-run later (for example, in case I realize I need the plot to be a half-inch wider, or a PNG instead of a JPEG).</p>
 <p>Let’s see an example:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">plot =</span> RT_by_anxiety_cond, <span class="co"># Pick which plot to save</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">filename =</span> <span class="st">"Example.png"</span>, <span class="co"># Extension determines file type (here, PNG)</span></span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">5</span>, <span class="co"># Measurements are in inches by default</span></span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">4</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">plot =</span> RT_by_anxiety_cond, <span class="co"># Pick which plot to save</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">filename =</span> <span class="st">"Example.png"</span>, <span class="co"># Extension determines file type (here, PNG)</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">5</span>, <span class="co"># Measurements are in inches by default</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">4</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Some tips to make this process as smooth as possible:</p>
 <ul>
