@@ -4,7 +4,7 @@ description: "An introduction to data visualization with ggplot2"
 author: "Jack Strelich"
 date: 2024-11-25
 categories: [R, Data Visualization]
-draft: true
+draft: false
 format: 
   html: 
     df-print: paged
@@ -22,14 +22,17 @@ In this post, we'll cover the basics of ggplot2, then explore how to plot distri
 
 ## Load data set
 
-We'll be working with a simulated data set today (`data-viz.csv`); you can download it [here](www.google.com). All the packages we'll need can be loaded via `library(tidyverse)`:
+We'll be working with a simulated data set today (`data-viz.csv`); you can download it [here](https://github.com/strelich/strelich.github.io/shared-data/data-viz.csv). All the packages we'll need can be loaded via `library(tidyverse)`:
 
-```{r message=FALSE}
+```{r}
+#| label: setup
+#| message: false
+
 # Load packages
 library(tidyverse) 
 
 # Load data
-main_dat <- read_csv("data-viz.csv") 
+main_dat <- read_csv("https://github.com/strelich/strelich.github.io/shared-data/data-viz.csv") 
 
 # Overview of data
 summary(main_dat)
@@ -43,6 +46,8 @@ The data is from an imaginary psychological experiment; we have three categorica
 To create a plot, we first call the `ggplot()` function. The `data` argument specifies the data set, and the `mapping` argument maps specific variables to aesthetics via the `aes()` function. Here, we'll map `Anxiety` to the x-axis and `RT` to the y-axis:
 
 ```{r}
+#| label: basic-plot
+
 ggplot(data = main_dat, 
        mapping = aes(x = Anxiety, y= RT))
 ```
@@ -54,6 +59,8 @@ Notice that running this code gives us a graph, but no data! We've told `ggplot`
 Having mapped variables onto the x-axis and y-axis, we can create a scatterplot by adding points via `geom_point()`:
 
 ```{r}
+#| label: basic-scatterplot
+
 # We'll omit argument names (data, mapping) going forward
 # ggplot() assumes the first argument is data and the second is mapping
 ggplot(main_dat, aes(x = Anxiety, y= RT)) + geom_point() 
@@ -64,6 +71,8 @@ ggplot(main_dat, aes(x = Anxiety, y= RT)) + geom_point()
 Next, we can set the color of the points to be based on `Condition` by mapping it onto color in the original `aes()`:
 
 ```{r}
+#| label: scatterplot-color
+
 ggplot(main_dat, aes(x = Anxiety, y = RT, color = Condition)) + 
   geom_point()
 ```
@@ -71,6 +80,7 @@ ggplot(main_dat, aes(x = Anxiety, y = RT, color = Condition)) +
 We can map `Major` to the shape of the points in the same way:
 
 ```{r}
+#| label: scatterplot-color-shape
 ggplot(main_dat, aes(x = Anxiety, y = RT, color = Condition, shape = Major)) + 
   geom_point()
 ```
@@ -84,6 +94,7 @@ To save[^saving] a plot for later use (and save ourselves a lot of copy-pasting)
 [^saving]: "Save" here means "keep in memory", _not_ "save to disk"; we'll cover that a little later.  
 
 ```{r}
+#| label: assign-scatterplot
 RT_by_anxiety_cond <- ggplot(main_dat, aes(x = Anxiety, y = RT, 
                                            color = Condition, shape = Major)) + 
   geom_point()
@@ -92,6 +103,7 @@ RT_by_anxiety_cond <- ggplot(main_dat, aes(x = Anxiety, y = RT,
 Calling the object then displays the plot:
 
 ```{r}
+#| label: call-scatterplot
 RT_by_anxiety_cond
 ```
 
@@ -100,18 +112,21 @@ RT_by_anxiety_cond
 We now have four variables (`Anxiety`, `RT`, `Condition`, and `Major`) in one plot -- very efficient, but a little hard to read. One solution is to split the plot into **facets**, giving us a mini-plot for each level of a factor...
 
 ```{r}
+#| label: scatterplot-facet-wrap
 RT_by_anxiety_cond + facet_wrap(~Major) # "By major"
 ```
 
 ...or for combinations of levels of factors:
 
 ```{r}
+#| label: scatterplot-facet-grid
 RT_by_anxiety_cond + facet_grid(Major~Condition) # "By major and condition"
 ```
 
 Switch order of variables in `facet_grid()` to flip arrangement of facets:
 
 ```{r}
+#| label: scatterplot-facet-grid-flipped
 RT_by_anxiety_cond + facet_grid(Condition~Major) 
 ```
 
@@ -120,6 +135,7 @@ Notice that all of the facets have shared (aligned) axes, allowing us to compare
 `facet_grid()` always creates rows and columns based on the faceting variable(s) you specify, which makes it useful when you want to facet by two specific variables. In contrast, `facet_wrap()` will wrap the facets into rows and columns, which makes it useful when you want to facet by a single variable that has more than three or so values:
 
 ```{r}
+#| label: scatterplot-facet-SES
 # New plot for this example
 ggplot(main_dat, aes(x=Anxiety,y=RT)) + geom_point() + facet_wrap(~SES)
 ```
@@ -131,6 +147,7 @@ Notice how SES levels 4 and 5 wrap around to make a second row!
 We can also customize the coordinate system used by our plot. Let's force our y-axis includes zero:
 
 ```{r}
+#| label: scatterplot-coords-y0
 # To keep an auto-calculated limit, use NA
 RT_by_anxiety_cond + coord_cartesian(ylim = c(0,NA)) 
 ```
@@ -138,6 +155,7 @@ RT_by_anxiety_cond + coord_cartesian(ylim = c(0,NA))
 We can swap X and Y axes using `coord_flip()`:
 
 ```{r}
+#| label: scatterplot-coords-flip
 RT_by_anxiety_cond + coord_flip(ylim = c(0,NA)) # y-axis is now horizontal!
 ```
 
@@ -151,6 +169,7 @@ Other useful coordinate systems:
 Themes allow us to change the appearance of the plot as a whole:
 
 ```{r}
+#| label: scatterplot-themes
 RT_by_anxiety_cond + theme_light() # Use light background
 RT_by_anxiety_cond + theme_minimal() # Omit bounding boxes
 RT_by_anxiety_cond + theme_classic() # More traditional style
@@ -159,6 +178,7 @@ RT_by_anxiety_cond + theme_classic() # More traditional style
 We can tweak the font[^fonts] used in the plot via arguments to the theme function:
 
 ```{r}
+#| label: scatterplot-font
 RT_by_anxiety_cond + theme_classic(base_size = 9, base_family = "serif") 
 ```
 
@@ -167,6 +187,7 @@ RT_by_anxiety_cond + theme_classic(base_size = 9, base_family = "serif")
 We can manually customize further by adding an additional `theme()` function:
 
 ```{r}
+#| label: scatterplot-custom-theme
 RT_by_anxiety_cond + 
   theme(legend.position = "bottom") # Move legend to bottom
 
@@ -198,6 +219,7 @@ Next, we'll explore how we can use these tools to visualize different types of d
 We can make histograms with `geom_histogram()`. We don't map anything to the y-axis -- R automatically maps frequency.
 
 ```{r}
+#| label: basic-histogram
 ggplot(main_dat, aes(x = Anxiety)) + # No Y aesthetic!
   geom_histogram()
 ```
@@ -205,6 +227,7 @@ ggplot(main_dat, aes(x = Anxiety)) + # No Y aesthetic!
 We can manually set size of bins:
 
 ```{r}
+#| label: histogram-tweak-bins
 ggplot(main_dat, aes(x = Anxiety)) + 
   geom_histogram(binwidth = 2)
 ```
@@ -212,6 +235,7 @@ ggplot(main_dat, aes(x = Anxiety)) +
 What if we want to look at the distribution separately for each level of `Condition`? We can map `Condition` onto the fill color of the histogram via the `fill` aesthetic[^fill]:
 
 ```{r}
+#| label: histogram-by-condition
 ggplot(main_dat, aes(x = Anxiety, fill = Condition)) +
   geom_histogram(binwidth = 2)
 ```
@@ -221,6 +245,7 @@ ggplot(main_dat, aes(x = Anxiety, fill = Condition)) +
 This plot's not great -- it's hard to read counts for Control and Treatment 1. Instead, let's try faceting:
 
 ```{r}
+#| label: histogram-by-condition-faceted
 ggplot(main_dat, aes(x = Anxiety, fill = Condition)) + 
   geom_histogram(binwidth = 2) + 
   facet_wrap(~Condition, ncol = 1) + # Force facets into single column
@@ -234,6 +259,7 @@ This plot makes it much easier to compare distributions between the three groups
 For categorical variables (like `Condition`), we can get frequency as a bar plot using `geom_bar()`. Just like with histograms, we don't map anything to the y-axis; the `geom` automatically calculates the height of the bars (in this case, by counting the number of cases).
 
 ```{r}
+#| label: bar-plot-counts
 ggplot(main_dat,aes(x = Gender)) + # No Y aesthetic!
   geom_bar()
 ```
@@ -269,6 +295,7 @@ Today, we'll focus on the second approach!
 Let's get a bar plot in which the bar heights represent group means (rather than frequencies):
 
 ```{r}
+#| label: bar-plot-means
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   stat_summary(fun = "mean", geom = "bar") # Get the mean, represent via bars
 ```
@@ -276,6 +303,7 @@ ggplot(main_dat, aes(x = Condition, y = Anxiety)) +
 If we want to get fancy, we can specify summary functions that return multiple values for each group, and geoms that use all these values:
 
 ```{r}
+#| label: pointrange-means
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   stat_summary(fun.data = "mean_cl_normal", geom = "pointrange")
 ```
@@ -287,6 +315,7 @@ We use `fun.data` because the function we've specified (`mean_cl_normal`) return
 We can have more than one geom in the same plot! Let's add a line:
 
 ```{r}
+#| label: multiple-geoms
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   # Plot means as line, all one group
   stat_summary(fun = "mean", geom = "line", group = 1) +
@@ -299,6 +328,7 @@ Notice the line uses `fun` (instead of `fun.data`) because it represents a singl
 We can combine summary statistics (our pointrange and lines) with raw data (i.e., individual data points):
 
 ```{r}
+#| label: summaries-plus-raw-data
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   stat_summary(fun.data = "mean_cl_normal", geom = "pointrange") + 
   stat_summary(fun = "mean", geom = "line", group = 1) +
@@ -308,6 +338,7 @@ ggplot(main_dat, aes(x = Condition, y = Anxiety)) +
 To avoid *overplotting* (data points directly on top of each other), we can make the points partially transparent:
 
 ```{r}
+#| label: summaries-plus-raw-data-transparent
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   stat_summary(fun.data = "mean_cl_normal", geom = "pointrange") + 
   stat_summary(fun = "mean", geom = "line", group = 1) + 
@@ -317,6 +348,7 @@ ggplot(main_dat, aes(x = Condition, y = Anxiety)) +
 We can also use a different geom to summarize the data:
 
 ```{r}
+#| label: summaries-plus-violin
 ggplot(main_dat, aes(x = Condition, y = Anxiety)) + 
   geom_violin() + # Put first so pointranges/lines are drawn on top
   stat_summary(fun.data = "mean_cl_normal", geom = "pointrange") + 
@@ -328,6 +360,7 @@ ggplot(main_dat, aes(x = Condition, y = Anxiety)) +
 Let's break things down by major as well as condition!
 
 ```{r}
+#| label: summaries-by-condition-major
 main_dat %>% 
   ggplot(aes(x = Condition, y = Anxiety, 
              color = Major, group = Major)) + # Specify how to group!
@@ -339,6 +372,7 @@ main_dat %>%
 To make things easier to read, let's *dodge* the geoms for each group (i.e., shift them slightly left/right so they're not stacked atop each other):
 
 ```{r}
+#| label: summaries-by-condition-major-dodged
 main_dat %>% 
   ggplot(aes(x = Condition, y = Anxiety, color = Major, group = Major)) + 
   stat_summary(fun.data = "mean_cl_normal", 
@@ -355,6 +389,7 @@ Note that we need to specify dodge for each geom to keep things aligned!
 Let's save this plot for later use:
 
 ```{r}
+#| label: summaries-by-condition-save
 Anxiety_by_cond_major <- main_dat %>% 
   ggplot(aes(x = Condition, y = Anxiety, color = Major, group = Major)) + 
   stat_summary(fun.data = "mean_cl_normal", 
@@ -377,11 +412,22 @@ To wrap things up, let's look at some different ways of tweaking aspects of a pl
 We can set labels within `scale_*()` functions, or by using the convenience function `labs()`. Let's try this with our earlier scatterplot:
 
 ```{r}
+#| label: plot-labs
 RT_by_anxiety_cond + # Back to our scatterplot!
   labs(title = "Mean reaction time by anxiety score, condition, and major", 
        subtitle = "Check out my awesome subtitle!",
        caption = "Can note exclusion criteria, define error bars, etc.",
        x = "Anxiety score", # List of scales and names
+       y = "Mean reaction time (ms)")
+```
+
+Note that all of the labels display within the plot area, and are distinct from figure captions that may be generated by (e.g.) RMarkdown or Quarto. In some contexts, it may be helpful to put as much information as possible in the plot itself (e.g., for a presentation or conference poster), while in other contexts this information may be displayed in the figure caption instead (e.g., a journal article). Here's what this same figure might look like if we took the second approach:
+
+```{r}
+#| label: fig-plot-captions
+#| fig-cap: "Mean reaction time by anxiety score, condition, and major. Check out my awesome subtitle! Here's some information about exclusion criteria, error bars, etc."
+RT_by_anxiety_cond + 
+  labs(x = "Anxiety score", # List of scales and names
        y = "Mean reaction time (ms)")
 ```
 
@@ -391,6 +437,7 @@ RT_by_anxiety_cond + # Back to our scatterplot!
 We can add arguments to `scale_*()` functions to customize the upper/lower bounds, and to determine where the breaks fall:
 
 ```{r}
+#| label: tweak-scales
 RT_by_anxiety_cond +
   scale_y_continuous(name = "Mean reaction time (ms)", # Another way to label!
                      limits = c(0,300), # Upper and lower bounds
@@ -400,6 +447,7 @@ RT_by_anxiety_cond +
 If your limits clip some of your data, you'll get a warning:
 
 ```{r}
+#| label: tweak-scales-clip-data
 RT_by_anxiety_cond +
   scale_y_continuous(name = "Mean reaction time (ms)",
                      limits = c(0,200), # Clips off upper end of data range
@@ -409,6 +457,7 @@ RT_by_anxiety_cond +
 If you are calculating summary statistics via `stat_summary()`, data that gets clipped off won't be included in summary statistics, which can skew results. It's a good idea to set the "window" via `coord` instead:
 
 ```{r}
+#| label: tweak-coords
 RT_by_anxiety_cond + 
   coord_cartesian(ylim = c(0,200))
 ```
@@ -418,6 +467,7 @@ RT_by_anxiety_cond +
 We can manually relabel levels of our discrete (categorical) x-axis. Let's try on our pointrange plot:
 
 ```{r}
+#| label: tweak-discrete-axes
 Anxiety_by_cond_major + # Our pointrange plot
   scale_x_discrete(labels = c("0mg", "500mg", "1000mg")) # Applied in order
 ```
@@ -425,6 +475,7 @@ Anxiety_by_cond_major + # Our pointrange plot
 In general, to relabel levels, tweak the scale that produced them. Here, for our scatterplot, we'll relabel `Condition` (mapped onto color) and `Major` (mapped onto shape):
 
 ```{r}
+#| label: tweak-multiple-axes
 RT_by_anxiety_cond + # Our scatterplot
   scale_color_discrete(labels = c("0mg", "500mg", "1000mg")) +
   scale_shape_discrete(labels = c("Chemistry","History","Psychology"))
@@ -435,6 +486,7 @@ RT_by_anxiety_cond + # Our scatterplot
 We can change the palettes R uses for colors. Let's practice with a brand-new plot:
 
 ```{r}
+#| label: gender-plots
 # Create bar plot of gender frequency
 Gender_plot <- ggplot(main_dat, aes(x = Gender, fill = Gender)) + 
   geom_bar()
@@ -453,6 +505,7 @@ Gender_plot + scale_fill_brewer(type = "qual", # Qualitative palettes
 We can also manually specify colors via `scale_fill_manual()`, either by name:
 
 ```{r}
+#| label: manual-color-scale
 Gender_plot + 
   scale_fill_manual(values =c("darkorange", "dodgerblue", "green", "purple"))
 ```
@@ -460,6 +513,7 @@ Gender_plot +
 Or by hex code (useful to match existing palettes such as school or corporate color schemes):
 
 ```{r}
+#| label: hex-colors
 Gender_plot +
   scale_fill_manual(values =c("#003660", "#FEBC11", "#043927", "#c4b581"))
 ```
@@ -467,6 +521,7 @@ Gender_plot +
 For ordinal variables (like SES), might make sense to use a sequential palette:
 
 ```{r}
+#| label: ordinal-colors
 ggplot(main_dat, aes(x = SES, fill = factor(SES))) + # Make R treat as factor
   geom_bar() +
   scale_fill_brewer(type = "seq") # Sequential palette
@@ -475,6 +530,7 @@ ggplot(main_dat, aes(x = SES, fill = factor(SES))) + # Make R treat as factor
 If a factor is ordered, ggplot automatically uses `scale_viridis` (an excellent sequential palette):
 
 ```{r}
+#| label: scale-viridis
 # Distribution of SES
 ggplot(main_dat, aes(x = SES, fill = ordered(SES))) + 
   geom_bar()
@@ -497,6 +553,7 @@ Finally, let's talk about exporting plots (i.e., saving them to disk). This can 
 Let's see an example:
 
 ```{r, eval=FALSE}
+#| label: export-plot
 ggsave(plot = RT_by_anxiety_cond, # Pick which plot to save
        filename = "Example.png", # Extension determines file type (here, PNG)
        width = 5, # Measurements are in inches by default
