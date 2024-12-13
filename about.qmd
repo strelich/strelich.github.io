@@ -10,6 +10,9 @@ about:
     - icon: github
       text: Github
       href: https://github.com/strelich
+    - icon: youtube
+      text: YouTube
+      href: https://www.youtube.com/@JackStrelich
     - icon: linkedin
       text: LinkedIn
       href: https://www.linkedin.com/in/jack-strelich/
@@ -26,6 +29,7 @@ My skills include:
 - Data aggregation, cleaning, and analysis
 - Data visualization and communication
 - Reproducible analysis and reporting workflows
+- Teaching/tutoring statistical methods and research best practices
 - R + tidyverse + Quarto, Git + GitHub, SQL, Python, SPSS, LaTeX, Qualtrics
 
 
