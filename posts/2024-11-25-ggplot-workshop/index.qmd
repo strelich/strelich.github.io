@@ -22,7 +22,7 @@ In this post, we'll cover the basics of ggplot2, then explore how to plot distri
 
 ## Load data set
 
-We'll be working with a simulated data set today (`data-viz.csv`); you can download it [here](https://github.com/strelich/strelich.github.io/shared-data/data-viz.csv). All the packages we'll need can be loaded via `library(tidyverse)`:
+We'll be working with a simulated data set today (`data-viz.csv`); you can download it [here](https://raw.githubusercontent.com/strelich/strelich.github.io/refs/heads/main/shared-data/data-viz.csv). All the packages we'll need can be loaded via `library(tidyverse)`:
 
 ```{r}
 #| label: setup
