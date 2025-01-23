@@ -1,0 +1,802 @@
+---
+title: "IMDB Data Wrangling"
+description: "Wrangling IMBD data and modelling with tidymodels"
+author: "Jack Strelich"
+date: 2025-01-23
+categories: [R, Data Cleaning, Data Visualization, Analysis]
+draft: false
+format: 
+  html: 
+    df-print: paged
+# image: "index_files/figure-html/fig-plot-captions-1.png"
+---
+
+Today, I'll explore some data on movies from [IMDB](https://developer.imdb.com/non-commercial-datasets/) and [Box Office Mojo](https://www.boxofficemojo.com/chart/top_lifetime_gross/). I'll begin with some quick data wrangling, then walk through modelling the data with the `tidymodels` package. I've been experimenting with this package a lot recently, and am particularly impressed by how it streamlines running multiple models and comparing the results. Note that this won't be a full-fledged tutorial for `tidymodels` (the `tidymodels` [docs](https://www.tidymodels.org/start/) cover that very well) nor a deep dive into the models themselves, but more of a worked example.
+
+```{r setup}
+#| message: false
+
+# Load packages
+library(tidymodels) # Modelling
+library(broom) # Extracting coefficients
+library(yardstick) # Evaluating models
+library(vip) # Variable importance
+
+library(rvest) # For webscraping
+
+library(tidyverse) # Data wrangling
+library(ggrepel) # Extra data viz
+
+# Set theme for plots
+theme_set(theme_minimal())
+```
+
+# Gather data
+
+## IMDB
+
+The [IMDB Non-Commercial Datasets](https://developer.imdb.com/non-commercial-datasets/) page lists the data sets available, as well as a dictionary for each one. Six data sets contain information about titles (movie, TV show, video game, etc.) and one contains info about individuals. These data sets are quite large; the ratings data includes about 1.5 million titles, and the individuals data includes over 14 million names. To keep things tractable, we'll limit our exploration to movies with at least 1000 individual ratings ("votes").
+
+```{r load-ratings-data}
+# Read ratings data
+ratings_dat <- read_tsv("https://datasets.imdbws.com/title.ratings.tsv.gz",
+                        show_col_types = FALSE) %>% 
+  filter(numVotes >= 1000) # Only titles with at least 1000 votes
+
+# Read names data
+names_dat <- read_tsv("https://datasets.imdbws.com/name.basics.tsv.gz", 
+                      show_col_types = FALSE,
+                      na = "\\N")
+
+# Read crew data
+crew_dat <- read_tsv("https://datasets.imdbws.com/title.crew.tsv.gz", 
+                     show_col_types = FALSE,
+                     na = "\\N")
+```
+
+For the main title data set (`title.basics.tsv.gz`), we'll do a little more data cleaning up front. Specifically, we'll:
+
+- Limit ourselves to movies (i.e., excluding TV shows, video games, and other types of media)
+- Exclude adult content (keeping thing SFW!)
+- Read release year and run time as integers
+- Split the `genres` column (currently a series of comma-separated tags) into multiple binary variables (1 if the tag applies, 0 otherwise)
+
+Using [lazy reading](https://www.tidyverse.org/blog/2021/11/readr-2-1-0-lazy/) via the `lazy = TRUE` argument to `read_tsv()` helps to speed up this process, although in my experience the real bottleneck is downloading the data in the first place.
+
+```{r}
+title_dat <- read_tsv("https://datasets.imdbws.com/title.basics.tsv.gz",
+                      na = "\\N",
+                      show_col_types = FALSE,
+                      lazy = TRUE) %>% # Don't load everything into memory!
+  filter(titleType == "movie", # Only movies
+         isAdult == 0) %>% # Not adult!
+  mutate(startYear = as.integer(startYear),
+         runtimeMinutes = as.integer(runtimeMinutes)) %>% 
+  select(-c(isAdult,endYear)) %>% # Drop unneeded columns
+  separate_longer_delim(genres, delim = ",") %>% # Split tags into multiple rows
+  mutate(temp=1) %>% # Create column of 1s
+  pivot_wider(names_from = genres, # Make wider; one column per genre
+              values_from = temp,
+              values_fill = 0,
+              names_prefix = "Genre_") # Set naming convention for new columns
+
+# Check work
+title_dat %>% head(10)
+```
+
+## Box Office Mojo
+
+We'll supplement the titles data with information on lifetime gross. Conveniently, [Box Office Mojo](https://www.boxofficemojo.com/chart/top_lifetime_gross/) lists the top 1000 domestic films by lifetime gross; less conveniently, the information is in a paged table. To save a bunch of copying and pasting, we'll do some basic webscraping to get this information into a single data frame.
+
+```{r}
+# Create vector of URLs, one for each page of the table
+URLs <- paste0("https://www.boxofficemojo.com/chart/top_lifetime_gross/?offset=", 
+               0:4*200)
+
+# Loop over URLs
+top_gross <- map(
+  URLs, \(url) 
+  read_html(url) %>% # For each URL...
+    html_elements("table") %>% # Pick out the table
+    html_table() %>% # Read the table as a list
+    pluck(1) %>% # Get the first element (the actual data)
+    # Remove commas and make into integers
+    mutate(Rank=str_remove(Rank,"\\,") %>% as.integer(), 
+           `Lifetime Gross`=str_remove_all(`Lifetime Gross`,"\\,|\\$") %>% 
+             as.integer())) %>% 
+  list_rbind() # Combine into single data frame
+
+# Check work
+top_gross %>% head(10)
+```
+
+## Join data sets
+
+Let's join our title (`title_dat`), ratings (`ratings_dat`), and domestic gross (`top_gross`) data sets into a single data frame. `title_dat` and `ratings_dat` will automatically join using the unique title identifiers (`tconst`) present in both data sets. For the domestic gross data, we'll join by title and release year; because these variables have different names in the title data and domestic gross data (`originalTitle` versus `Title` and `startYear` versus `Year`), we'll need to specify which columns in each data set are equivalent, using `join_by()`.
+
+Note the use of `inner_join()` to join the title and rating data; this ensures that we retain only titles that have ratings associated with them (and at least 1000 votes, thanks to our earlier filtering of the ratings data). In contrast, we join the domestic gross data using `left_join()`, meaning that we retain titles from the title data even if they don't appear in the domestic gross data.
+
+Lastly, we'll join `crew_dat` to get unique identifiers for each movie's director, then join `names_dat` to get the actual names associated with each identifier[^individual].
+
+```{r}
+title_dat <- title_dat %>% # Start with title data set  
+  inner_join(ratings_dat) %>% # Join ratings data set (use tconst as key)
+  left_join(top_gross,  # Join gross data set
+            by = join_by(originalTitle == Title, # Col names differ -- specify!
+                         startYear == Year)) %>% 
+  left_join(crew_dat) %>% # Join crew data set
+  left_join(select(names_dat, # Names!
+                   directors=nconst, # Rename variables to match
+                   Director=primaryName)) %>%  
+  select(tconst, primaryTitle:runtimeMinutes, averageRating, numVotes, # Reorganize columns
+         `Lifetime Gross`, Director, starts_with("Genre"))
+```
+
+[^individual]: This approach only works for films with a single director; we'll stick with it here because the alternative would make our data structure more complicated.
+
+# Explore
+
+## Descriptives
+
+Let's check our work thus far via `glimpse()`:
+
+```{r}
+title_dat %>% glimpse()
+```
+
+We see the following variables:
+
+- `tconst`: unique identifier for each movie
+- `primaryTitle`: main title by which the movie is known
+<!-- - `originalTitle`: original title of movie (e.g., non-English title) -->
+- `startYear`: year movie was released
+- `runtimeMinutes`: movie's runtime, in minutes (natch)
+- `averageRating`: average of all ratings (1-10 scale)
+- `numVotes`: total number of ratings received 
+- `Lifetime Gross`: lifetime domestic gross of movie; only available for the top 1000 highest-grossing movies in our data set
+- `Director`: name of movie's director; `NA` if more than one director
+- `Genre_X`: genre tags (`1` if the tag applies, `0` otherwise)
+
+We can get a quick-and-dirty overview of our continuous variables via `summary()`, and a breakdown of the distributions of (and correlations[^corrs] between) these variables via `GGally::ggpairs()`:
+
+[^corrs]: We'll use Spearman's rho to estimate correlation since some of our variables aren't normally distributed.
+
+```{r}
+title_dat %>% 
+  select("startYear","runtimeMinutes",
+         "averageRating","numVotes","Lifetime Gross") %>% 
+  summary()
+```
+
+```{r}
+#| message: false
+#| warning: false
+
+
+title_dat %>% 
+  select("startYear","runtimeMinutes",
+         "averageRating","numVotes","Lifetime Gross") %>% 
+  GGally::ggpairs(
+    lower = list(continuous = GGally::wrap("points", # Handle overplotting
+                                           alpha = 0.1, 
+                                           size = 1)),
+    upper = list(continuous = GGally::wrap(GGally::ggally_cor, 
+                                           method = "spearman",
+                                           use = "pairwise",
+                                           title = "Rho"))
+  ) + labs(title = "Distributions and correlations of continuous variables",
+           caption = "Data from datasets.imdbws.com")
+```
+
+Major takeaways:
+
+- `startYear`: most movies in the data set are relatively recent (post-2008)
+- `runtimeMinutes`: extreme positive skew. Digging around in the raw data, I found a handful of cases where a miniseries was treated as a single movie, or where the date was copied into the runtime column, but also at least one 25-hour-long movie!
+- `numVotes`: extreme positive skew!
+- Correlations between these variables are statistically significant, but small enough that we shouldn't have glaring issues with multicollinearity (although the correlation between `numVotes` and `Lifetime Gross` is potentially troublesome).
+
+## Visualization
+
+Let's start by examining which movies got the most votes overall. Because we joined the crew data, we can also include directors' names in the plot!
+
+```{r}
+#| fig-asp: 1.0
+# Most votes overall
+title_dat %>% 
+  slice_max(order_by = numVotes, n = 20) %>% # Top 20 films
+  mutate(Label = paste0(primaryTitle,"\n(",Director,")")) %>% # Add directors
+  ggplot(aes(x = fct_inorder(Label) %>% fct_rev, y = numVotes)) + 
+  geom_col(fill="dodgerblue") + 
+  geom_text(aes(label = format(numVotes,big.mark = ",")), 
+            color = "white", nudge_y = -3*10^5) +
+  coord_flip() + 
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  labs(x = "Movie", y="Total votes", 
+       title = "Top 20 movies by number of votes",
+       caption = "Data from datasets.imdbws.com")
+```
+
+Unsurprisingly, we see a mix of (relatively) recent blockbusters such as _Interstellar_ and _The Wolf of Wall Street_ as well as older classics like _The Godfather_ and _Silence of the Lambs_. 
+
+Next, let's look at the relationship between ratings and lifetime gross. We'll use `ggrepel::geom_text_repel()` to label the highest-grossing films (those making more than $500 million).
+
+```{r}
+#| fig-asp: 1.0
+title_dat %>% 
+  drop_na(`Lifetime Gross`) %>% 
+  ggplot(aes(x = averageRating, y = `Lifetime Gross`)) + 
+  geom_point()+
+  geom_text_repel(data = filter(title_dat, `Lifetime Gross` > 500000000), 
+                  aes(label = primaryTitle),
+                  color = "firebrick") +
+  scale_y_continuous(labels = scales::label_dollar()) +
+  labs(x = "Average rating",
+       y = "Lifetime domestic gross",
+       title = "Lifetime domestic gross by average rating",
+       caption = "Includes only top 1000 movies by lifetime domestic gross.
+       Data from datasets.imdbws.com and boxofficemojo.com/chart/top_lifetime_gross")
+```
+
+Finally, let's look at the frequency of each genre tag in the data set:
+
+```{r}
+#| fig-asp: 1.0
+title_dat %>% 
+  select(starts_with("Genre_")) %>% 
+  pivot_longer(everything(), names_prefix = "Genre_") %>% 
+  filter(value==1) %>% 
+  count(name, sort = TRUE) %>% # Get frequency of each tag
+  ggplot(aes(x=fct_rev(fct_inorder(name)),y=n)) + # Order by frequency
+  geom_col(fill="darkblue") + 
+  geom_text(aes(y = ifelse(n>3000, n-1500, n+1000), color = n > 3000,
+    label = format(n,big.mark = ","))) +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  coord_flip() +
+  scale_color_manual(values = c("black","white")) +
+  theme(legend.position = "none") +
+  labs(x = "Genre", y = "Frequency",
+       title = "Frequency of genre tags",
+       caption = "Data from datasets.imdbws.com")
+```
+
+Drama and comedy are the most frequent tags by a pretty substantial margin!
+
+
+# Model
+
+Let's shift gears and try building some models with this data via `tidymodels`. As I mentioned earlier, this won't be a full tutorial for `tidymodels` or a deep dive into the models themselves, but rather a worked example of how `tidymodels` allows us to easily run and compare multiple models. Take our findings with a grain of salt; these models will be very quick, back-of-the-envelope affairs, and we'll skip over a lot of the steps we'd take if we were actually trying to make significant real-world decisions based on the outputs.
+
+## Lifetime gross
+
+To start, let's make a model to investigate which variables best predict lifetime gross. Because we only have lifetime gross data for the 1000 highest grossing movies in our data set, this will substantially decrease our sample size:
+
+```{r}
+# Define our data set
+gross_dat <- title_dat %>% 
+  filter(runtimeMinutes < 300, # Drop movies over 5hrs long...
+         !is.na(startYear), # Those missing release year...
+         !is.na(`Lifetime Gross`)) %>% # And those missing gross data
+  select(tconst,
+         primaryTitle,
+         gross = `Lifetime Gross`,
+         averageRating,
+         numVotes,
+         startYear, 
+         runtimeMinutes, 
+         starts_with("Genre_")) %>% 
+  select(-c('Genre_News', 'Genre_NA', # Drop columns for genres that don't occur
+            'Genre_Talk-Show', 'Genre_Reality-TV', 'Genre_Game-Show'))
+
+glimpse(gross_dat)
+```
+
+Next, we'll define a recipe to preprocess our data. This recipe will:
+
+- Predict lifetime gross (`gross`) from all other predictors
+- Treat `tconst` and `primaryTitle` as identifiers
+- Log-transform `gross` and `numVotes` to handle deviation from normality
+- Normalize all continuous predictors (i.e., convert to z-scores)
+- Remove predictors with no variance
+
+```{r}
+# Set the recipe
+lm_gross_rec <- recipe(gross ~ ., gross_dat) %>% # Predict gross from all others
+  update_role(tconst,primaryTitle,new_role = "ID") %>% # Treat as identifiers
+  step_log(gross, numVotes) %>% # Log transform gross and number of votes
+  step_normalize(startYear,runtimeMinutes,numVotes,gross) %>% # Normalize
+  step_zv(all_predictors()) # Remove predictors with no variance
+```
+
+Finally, we'll fit the model:
+
+```{r gross-model}
+# Fit model
+lm_gross_fit <- workflow() %>% 
+  add_model(linear_reg()) %>% # Use linear regression
+  add_recipe(lm_gross_rec) %>% # Pre-process data via our recipie
+  fit(data = gross_dat) # Fit using our data set
+
+lm_gross_fit
+```
+
+To make sense of the model results, let's visualize our coefficients via a dot-and-whisker plot:
+
+```{r}
+broom.mixed::tidy(lm_gross_fit, conf.int = TRUE) %>% # Get coefficients and CIs
+  drop_na(estimate) %>% 
+  arrange(desc(estimate)) %>% 
+  dotwhisker::dwplot(dot_args = list(size = 2, color = "black"),
+                     whisker_args = list(color = "black"),
+                     vline = geom_vline(xintercept = 0, 
+                                        colour = "grey50", 
+                                        linetype = 2)) + 
+  labs(title = "Predicting lifetime gross", subtitle = "Linear model")
+```
+
+Looking at the first few variables, a film being a documentary, animation, adventure, and/or fantasy seems to predict higher lifetime gross. Similarly, more votes overall, longer runtimes, and more recent release dates also seem to predict higher lifetime gross. The fact that being a documentary predicts higher lifetime gross seems a little odd -- I don't usually think of documentaries as huge moneymakers. To investigate, let's see what documentaries are included in our data set for this model:
+
+```{r}
+#| tbl-cap: Predicting lifetime gross - Documentaries
+
+gross_dat %>% 
+  filter(Genre_Documentary == 1) %>% 
+  select(primaryTitle:runtimeMinutes)
+```
+
+Crucially, we only have four documentaries in our entire data set -- this explains the very wide confidence interval for this coefficient in our dot-and-whisker plot. More to the point, the documentaries we have are an  IMAX 3D feature about the International Space Station, a controversial Michael Moore documentary, Jackass 3D (self-explanatory), and a chronicle of Taylor Swift's Eras Tour. Overall, I'd say we're looking at a specific type of selection bias; the documentaries that make it into the top 1000 grossing films aren't necessarily representative of documentaries in general.
+
+
+Lastly, let's look at the ten highest and lowest residuals in our results; these are the movies whose lifetime gross was most underestimated and overestimated (respectively) by the model:
+
+```{r}
+#| tbl-cap: Predicting lifetime gross - Highest residuals
+
+augment(lm_gross_fit, gross_dat) %>% 
+  slice_max(.resid, n=10) %>% 
+  select(.resid, .pred, primaryTitle:runtimeMinutes)
+```
+
+```{r}
+#| tbl-cap: Predicting lifetime gross - Lowest residuals
+
+augment(lm_gross_fit, gross_dat) %>% 
+  slice_min(.resid, n=10) %>% 
+  select(.resid, .pred, primaryTitle:runtimeMinutes)
+```
+
+## Average ratings
+
+Next up, let's see if we can predict a movie's average rating from its number of votes, release year, run time, and genre tags. To start, we'll create a new data frame by filtering out movies over 5 hours long and those missing a release year, and selecting only the variables we're interested in.
+
+```{r}
+# Create data set
+rating_model_dat <- title_dat %>% 
+  filter(runtimeMinutes < 300,
+         !is.na(startYear)) %>% 
+  select(tconst,
+         primaryTitle,
+         averageRating,
+         numVotes,
+         startYear, 
+         runtimeMinutes, 
+         starts_with("Genre_")) %>% 
+  select(-c('Genre_News', 'Genre_NA', 
+            'Genre_Talk-Show', 'Genre_Reality-TV', 'Genre_Game-Show'))
+
+glimpse(rating_model_dat)
+```
+
+Next, we'll split this data set into a _training_ and a _test_ set. The training set will used to train our models (hence the name); the test set will be used to evaluate how well they generalize to new data.
+
+```{r}
+set.seed(1337) # Set seed for reproducibility
+rating_data_split <- initial_split(rating_model_dat, prop = 3/4)
+rating_data_train <- training(rating_data_split)
+rating_data_test <- testing(rating_data_split)
+```
+
+Now we'll specify a data pre-processing recipe that will:
+
+- Predict average rating (`averageRating`) from all other predictors
+- Treat `tconst` and `primaryTitle` as identifiers
+- Log-transform `numVotes` to handle deviation from normality
+- Normalize all continuous predictors (i.e., convert to z-scores)
+
+```{r}
+# Set the recipe
+rating_rec <- recipe(averageRating ~ ., rating_model_dat) %>% # Set formula
+  update_role(tconst, primaryTitle, new_role = "ID") %>% # Treat as identifiers
+  step_log(numVotes) %>% # Log transform to address deviation from normality
+  step_normalize(startYear, runtimeMinutes, numVotes) %>% # Normalize continuous
+  step_zv(all_predictors()) # Remove predictors with no variance
+```
+
+We can reuse our work here with each model we run -- this is one of the big advantages of `tidymodels`!
+
+### Linear model
+
+First, let's fit a linear model to our training data.
+
+```{r ratings-via-LM}
+# Fit model
+lm_rating_fit <- workflow() %>% # Set up workflow
+  add_model(linear_reg()) %>% # Use linear regression
+  add_recipe(rating_rec) %>%  # Use our pre-processing recipe
+  fit(data = rating_data_train) # Use training data set
+
+# Check results
+lm_rating_fit
+```
+
+As we did for the lifetime gross model, let's visualize via a dot-and-whisker plot:
+
+```{r}
+broom.mixed::tidy(lm_rating_fit, conf.int = TRUE) %>% 
+  drop_na(estimate) %>% 
+  arrange(desc(estimate)) %>% 
+  dotwhisker::dwplot(dot_args = list(size = 2, color = "black"),
+                     whisker_args = list(color = "black"),
+                     vline = geom_vline(xintercept = 0, colour = "grey50", linetype = 2)) + 
+  labs(title = "Predicting average ratings", subtitle = "Linear model")
+```
+
+Out of curiosity, let's see the 20 movies with the lowest (most) negative residuals -- in other words, the movies for which our model most overestimated ratings:
+
+```{r}
+#| tbl-cap: Predicting average ratings - Lowest residuals
+
+augment(lm_rating_fit, rating_model_dat) %>% 
+  slice_min(.resid, n=20) %>% 
+  select(.pred, .resid, primaryTitle:runtimeMinutes)
+```
+
+The presence of two Justin Bieber films near the top of the list jumps out at me, as do the titles "The Trump Prophecy" and "Buck Breaking". If I had to guess, we're seeing films that have attracted more (negative) attention due to their content than would be expected based purely on the variables available to our model. This highlights a crucial shortcoming of our model: other than the genre tags, it doesn't incorporate any information about what the films are actually _about_.
+
+Same thing, but now the highest residuals:
+
+```{r}
+#| tbl-cap: Predicting average ratings - Highest residuals
+
+augment(lm_rating_fit, rating_model_dat) %>% 
+  slice_max(.resid, n=20) %>% 
+  select(.pred, .resid, primaryTitle:runtimeMinutes)
+```
+
+These appear to be mainly non-English titles, released recently, with relatively few votes (recall that our threshold for inclusion in the data set was 1000 votes).
+
+
+### Random forest
+
+With only a few extra lines of code, we can run the same analysis using a different model! Let's try a random forest model -- all we need to do is set up the engine we want to use (`ranger`), specifying the mode (`regression`, since our outcome is continuous), the number of trees (`trees`), and the method to be used to assess variable importance (`importance`)[^hyper].
+
+[^hyper]: Many models, including random forest and XGBoost, allow us to set _hyperparameters_ such as the number of trees or the number of predictors to sample at each split. For this post, I've manually set the number of trees but left all other hyperparameters at their default values. I'll cover methods for finding the optimal values for hyperparameters (knowing as _tuning_) in a future post; I'm skipping over it here because it can be both time- and processor-intensive!
+
+```{r}
+# Set the engine
+rf_mod <- rand_forest(mode = "regression", trees = 1000) %>%
+  set_engine("ranger", importance="impurity") 
+
+# Set workflow and fit model
+rf_rating_fit <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rating_rec) %>% # Same recipe as before! 
+  fit(data = rating_data_train)
+
+rf_rating_fit
+```
+
+### XGBoost
+
+We'll fit a third model using XGBoost:
+
+```{r}
+# Set the engine
+xgb_mod <- boost_tree(engine = "xgboost", mode = "regression", trees = 1000)
+
+# Set workflow and fit model
+xgb_rating_fit <- workflow() %>% 
+  add_model(xgb_mod) %>% # Use XGBoost
+  add_recipe(rating_rec) %>%  # Same recipe as before!
+  fit(data = rating_data_train)
+
+xgb_rating_fit
+```
+
+### Compare
+
+#### Metrics
+
+To compare our models, we first define a set of metrics:
+
+- Root mean square deviation (`rmse`): measures the deviation between observed and model-predicted values. Smaller values represent better fit; a value of 0 (impossible in practice) would represent perfect fit.
+- R-squared (`rsq`): proportion of variance in outcome variable predicted by the model. Ranges from 0.0 to 1.0; larger values represent better fit, with a value of 1.0 (impossible in practice) representing perfect fit.
+
+```{r}
+# Define metrics
+rating_metrics <- metric_set(rmse, rsq)
+```
+
+Next, we loop over a list of our models, using the `augment()` function to calculate these metrics for each model. First, let's see what happens if we calculate these metrics using the _training_ data:
+
+```{r}
+#| tbl-cap: Predicting average ratings - Model metrics (training data)
+
+# Make list of models
+rating_models <- list("Linear"=lm_rating_fit,
+                      "Random Forest"=rf_rating_fit,
+                      "XGBoost" = xgb_rating_fit)
+
+rating_models %>% 
+  map(\(model) 
+      augment(model, rating_data_train) %>% # Use training data
+        rating_metrics(averageRating, .pred)) %>% 
+  list_rbind(names_to = "Model") %>% 
+  select(-.estimator) %>% 
+  pivot_wider(names_from = .metric, values_from = .estimate)
+```
+
+XGBoost appears superior by both metrics, but there's a big caveat -- models such as XGBoost (and random forests, to a lesser extent) are prone to _overfitting_, meaning that their predictions can be hyper-specialized for the data they were trained upon (e.g., `rating_data_train`) at the expense of their ability to generalize to novel data. To check, we'll calculate our metrics again, but this time we'll use our _test_ data (`rating_data_test`):
+
+
+```{r}
+#| tbl-cap: Predicting average ratings - Model metrics (test data)
+
+rating_models %>% 
+  map(\(model) 
+      augment(model, rating_data_test) %>% # Use test data
+        rating_metrics(averageRating, .pred)) %>% 
+  list_rbind(names_to = "Model") %>% 
+  select(-.estimator) %>% 
+  pivot_wider(names_from = .metric, values_from = .estimate)
+```
+
+Note that our linear model performs roughly the same, but our random forest and XGBoost models show decreased performance. In particular, while XGBoost appeared to outperform the random forest model on the training data, it performs roughly equivalent to the linear model on the test data.
+
+The takeaway here is that estimating our metrics based on the _training_ data inflated the performance of our random forest and (in particular) XGBoost models; using the _test_ data gives a much more accurate estimate of our metrics. 
+
+#### Variable importance
+
+We can use the `vip` package to get estimates of variable importance from each of our models, then plot them together:
+
+```{r}
+#| fig-asp: 1.0
+
+rating_models %>% 
+  map(\(model) vip::vi(model,scale = T)) %>% # Scale makes estimates comparable
+  list_rbind(names_to = "Model") %>% 
+  ggplot(aes(x=fct_reorder(Variable, Importance, mean), # Order by mean
+             y = Importance, 
+             fill = Model, color = Model, shape = Model)) + 
+  geom_point(alpha=0.8, size=3) +
+  coord_flip() + 
+  labs(title = "Predicting average rating - Variable importance",
+       x = "Variable", y = "Importance (scaled)",
+       caption = "Variables in descending order of mean importance")
+```
+
+There's some divergence between the three models, but overall, number of votes, run time, and release year seem to be the most important predictors across models.
+
+#### Predicted versus observed ratings
+
+Lastly, let's compare the predicted versus observed ratings for each of our three models:
+
+```{r}
+#| fig-asp: 1.2
+
+rating_models %>% 
+  map(\(model) augment(model, rating_data_test)) %>% 
+  list_rbind(names_to="Model") %>% 
+  ggplot(aes(x=.pred,y=averageRating))+
+  geom_hex()+
+  geom_abline(slope = 1) + 
+  coord_fixed() + 
+  scale_fill_viridis_c()+
+  labs(x="Predicted average rating",y="Average rating", fill = "Frequency",
+       title = "Predicting average rating - Predicted versus observed ratings")+
+  facet_wrap(~Model,nrow = 2) + 
+  theme(legend.position = "inside", legend.position.inside = c(.75,.25))
+```
+
+The more closely the distribution follows the diagonal line, the more closely the predicted ratings match the observed ratings. Overall, the XGBoost model seems to have a slight advantage.
+
+## Predicting genre
+
+All of our models thus far have examined continuous outcomes. Now, let's try some models with a categorical outcome. Specifically, let's see if we can predict whether or not a movie is classified as a drama based on the variables available to us! As with the previous example, we'll run three models and compare the results: binary logistic regression (GLM), random forest, and XGBoost.
+
+```{r}
+# Define our data set
+drama_model_dat <- rating_model_dat %>% 
+  mutate(Drama = factor(Genre_Drama, labels = c("no","yes"))) %>% 
+  select(-Genre_Drama)
+
+# Split data into training/testing sets
+# Setting `strata = Drama` ensures that proportion of positive cases
+# is roughly equal in training vs test set
+set.seed(1337)
+genre_data_split <- initial_split(drama_model_dat, strata = Drama)
+genre_data_train <- training(genre_data_split)
+genre_data_test <- testing(genre_data_split)
+
+# Set the recipe
+genre_rec <- recipe(Drama ~ ., genre_data_train) %>% 
+  step_log(numVotes) %>% 
+  step_normalize(averageRating,startYear,runtimeMinutes,numVotes) %>% 
+  update_role(tconst,primaryTitle,new_role = "ID") # Treat as identifiers
+```
+
+
+
+### GLM
+
+Setting up the engine for GLM is straightforward; we technically don't need to specify `mode` or `engine`, since `logistic_reg()` defaults to `mode = "classification"` and `engine = "glm"`, but I've included them here for completeness.
+
+```{r}
+# Set the engine
+genre_mod <- logistic_reg(mode = "classification",
+                          engine = "glm")
+
+# Set the workflow
+genre_workflow <- workflow() %>% 
+  add_model(genre_mod) %>% 
+  add_recipe(genre_rec)
+
+# Fit model
+genre_fit <- genre_workflow %>% 
+  fit(data = genre_data_train)
+
+# Check results
+genre_fit
+```
+
+### Random forest
+
+For a random forest model, we'll pass a few more arguments to set up the engine.
+
+```{r}
+# Set the engine
+genre_rf <- rand_forest(trees = 1000) %>%
+  set_engine("ranger", importance="impurity") %>%
+  set_mode("classification")
+
+
+# Set the workflow
+genre_workflow_rf <- workflow() %>% 
+  add_model(genre_rf) %>% 
+  add_recipe(genre_rec)
+
+# # Finalize model and fit
+genre_fit_rf <- genre_workflow_rf %>%
+  fit(data = genre_data_train)
+
+# Check results
+genre_fit_rf
+```
+
+
+### XGBoost
+
+Lastly, let's run an XGBoost model:
+
+```{r}
+genre_xgb <- boost_tree() %>%
+  set_engine("xgboost") %>% 
+  set_mode("classification")
+
+# Set the workflow
+genre_workflow_xgb <- workflow() %>% 
+  add_model(genre_xgb) %>% 
+  add_recipe(genre_rec)
+
+# Finalize model and fit
+genre_fit_xgb <- genre_workflow_xgb %>% 
+  fit(data = genre_data_train)
+
+genre_fit_xgb
+```
+
+### Compare
+
+#### Metrics
+
+As previously, we'll define a set of metrics to compare our model:
+
+- Accuracy (`accuracy`): measures the proportion of cases that are predicted correctly. Values closer to 1.00 indicate greater accuracy.
+- Kappa (`kap`): like accuracy, but adjusted based on the proportion of correct predictions that would be expected due to chance alone.
+- Sensitivity (`sensitivity`): the number of _predicted positives_ divided by the number of _actual positives_. In our case, what proportion of films with the "drama" tag did our models correctly predict as dramas?
+- Specificity (`specificity`): the number of _predicted negatives_ divided by the number of _actual negatives_. In our case, what proportion of non-drama films did our models correctly predict as non-dramas?
+
+```{r}
+#| tbl-cap: Predicting drama - Model metrics
+
+# Define metrics
+genre_metrics <- metric_set(
+  yardstick::accuracy,
+  kap, 
+  sensitivity,
+  specificity
+)
+
+# Make list of models, augment with predictions
+genre_models_augmented <- list("GLM"=genre_fit,
+                               "Random Forest"=genre_fit_rf,
+                               "XGBoost"=genre_fit_xgb) %>% 
+  map(\(model) augment(model, genre_data_test)) # Get predictions from test dat
+  
+# Get metrics
+genre_models_augmented %>% 
+  map(\(model) genre_metrics(model, truth = Drama, estimate =.pred_class)) %>% 
+  list_rbind(names_to = "Model") %>% 
+  select(-.estimator) %>% 
+  pivot_wider(names_from = .metric, values_from = .estimate)
+```
+
+Our random forest and XGBoost models appear to perform better than our GLM, but don't differ substantially from each other.
+
+We can also assess our models in terms of their receiver operating characteristic (ROC) curves. We'll run `roc_curve()` on each of our models, then bind the data together and plot with `ggplot()`:
+
+
+```{r}
+genre_models_augmented %>% 
+  map(~roc_curve(.x, truth = Drama, .pred_no)) %>% # Calculate ROC curves
+  list_rbind(names_to = "Model") %>% # Bind into single data frame
+  ggplot(aes(x = 1-specificity,y=sensitivity,color=Model)) + 
+  geom_line() + # Plot the curves
+  geom_abline(linetype=3) + # Add diagonal line for reference
+  coord_fixed() + # Make plot square
+  labs(title="Predicting drama - ROC curves by model")
+```
+
+These curves describe the relationship between a model's true positive rate (sensitivity) and its false positive rate (1-specificity). If a model predicted a binary outcome purely at random, its true positive rate would always be equal to its false positive rate, and its "curve" would fall on the dotted diagonal line; the better a model predicts the outcome, the farther the curve curves away from the diagonal. Out of our three models, the random forest appears to slightly outperform the XGBoost, and both outperform the GLM, as seen from the fact that their curves bend farther from the diagonal (put another way, for any level of specificity, these models have equal or greater sensitivity than the GLM).
+
+We can quantify the difference between the models' ROC curves by calculating the area under the curve (AOC) for each model. Values closer to 1.00 indicate greater performance.
+
+```{r}
+#| tbl-cap: Predicting drama - ROC AUC
+
+genre_models_augmented %>% 
+  map(\(model) roc_auc(model, 
+                       truth = Drama, 
+                       .pred_yes, event_level="second")) %>% 
+  list_rbind(names_to = "Model")
+```
+
+Here again, the random forest model slightly outperforms the XGBoost model, and both outperform the GLM.
+
+#### Variable importance
+
+Finally, let's plot estimates of variable importance for each model:
+
+```{r}
+#| fig-asp: 1.0
+
+list("GLM"=genre_fit,
+     "Random Forest"=genre_fit_rf,
+     "XGBoost"=genre_fit_xgb) %>% 
+  map(\(model) vip::vi(model,scale = T)) %>% 
+  list_rbind(names_to = "Model") %>% 
+  ggplot(aes(x=fct_reorder(Variable, Importance, mean), y = Importance, 
+             fill = Model, color = Model, shape = Model)) + 
+  geom_point(size=3) +
+  coord_flip() +
+  labs(x="Variable",
+       y="Importance (scaled)",
+       title = "Predicting drama - Variable importance",
+       caption = "Variables in descending order of mean importance")
+```
+
+The genre tags for comedy and drama appear to be most important regardless of model; however, estimates of importance for variables like average rating, number of votes, and release year differ substantially by model (higher for random forest and XGBoost, lower for GLM). In a real-world scenario, we'd want to dig deeper, potentially using a permutation-based method to assess the variability of these estimates.
+
+
+# Wrapping up
+
+Phew -- that was a lot! We began by reading in multiple data sets from IMBD, webscraping lifetime gross data from Box Office Mojo, then joining these to produce a data set of movies that included ratings, director names, and lifetime domestic gross (where available). We then used `tidymodels` package to set up modelling workflows to predict lifetime gross, average rating, and genre based on all variables available to us. For the latter two, we ran multiple models, then compared performance and estimates of variable importance.
+
+I'm really enjoying what I've seen of `tidymodels` thus far -- I find myself spending more time thinking about the model itself, and less time wrestling with the implementation. The ability to quickly switch engines (e.g., from linear regression to random forest to XGBoost) and easily compare results is another huge plus, since it makes it much easier to answer the type of "Hmmm, what if we tried..." questions that arise so often in modelling. I hope to do a deeper dive into `tidymodels` and its capabilities in a future post!
+
+
+
+
+
+
+
+
