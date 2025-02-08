@@ -1,0 +1,13 @@
+---
+title: "Statistical Methods lecture videos"
+description: "Lecture videos from my Statistical Methods course now on Youtube"
+author: "Jack Strelich"
+date: 2025-02-10
+categories: [Teaching]
+draft: true
+format: 
+  html: 
+    df-print: paged
+---
+
+In December 2019, I signed up to teach my first course as instructor of record: Statistical Methods in Psychological Science, to be taught in Summer 2020. Then, of course, everything changed when ~the Fire Nation~ COVID-19 attacked and the university hastily transitioned to remote instruction.
