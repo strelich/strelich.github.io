@@ -10,4 +10,19 @@ format:
     df-print: paged
 ---
 
-In December 2019, I signed up to teach my first course as instructor of record: Statistical Methods in Psychological Science, to be taught in Summer 2020. Then, of course, everything changed when ~the Fire Nation~ COVID-19 attacked and the university hastily transitioned to remote instruction.
+In December 2019, I signed up to teach my first course as instructor of record: Statistical Methods in Psychological Science, to be taught in Summer 2020. Then, of course, everything changed when ~~the Fire Nation~~ COVID-19 attacked and the university hastily transitioned to remote instruction. As I designed my course, I chose to emphasize flexibility[^forces] for the students: replacing the conventional high-stakes midterm and final exam with weekly assessments, dropping the lowest score on exams and homework assignments, and replacing lectures with asynchronous (pre-recorded) lecture videos. 
+
+[^forces]: At this stage, I was mainly concerned about disruptions due to COVID-19; over the course of the summer, my students would also experience disruption due to civil unrest, natural disasters, and other _forces majeure_. It was a very interesting time to be alive!
+
+Because the lecture videos would be the "face" of the class (especially for the students who didn't attend office hours), I invested time in the production process, recording multiple takes of each slide and splicing out garbled lines to ensure that my narration flowed smoothly. Producing the videos also served as a crash course in audio engineering; I borrowed a Blue Yeti microphone from a friend to replace my laptop microphone and set up an ersatz recording studio, with a pop shield in front of the mic, a folding screen behind me and throw pillows propped in front of me to reduce reverb, and a mousepad under the mic to reduce keyboard noise. 
+
+![An early version of my recording setup -- note the sound-dampening yoga mat!](recording_setup.png)
+
+The production process was time-consuming: an hour-long lecture took about two hours of recording, another hour of editing, and roughly half an hour to upload to Panopto. Still, because the lecture videos were the main point of contact with the course material for my students, I felt that this was time well-spent. Both in office hours and in anonymous feedback, students said that they enjoyed the flexibility of the asynchronous lectures, and that they found the information clear and easy to follow.
+
+I've started uploading the lecture videos to [a playlist on my YouTube](https://youtube.com/playlist?list=PLCjr5lV7Uv_C1xrGkpRvS9Ogg0f0Qkcjp&feature=shared); I currently have the first two weeks (out of six) posted. While there are some things I'd do differently if I were to teach this course again (a full-on flipped classroom approach, and better audio mixing), I'm still very proud of the end product. Let me know what you think!
+
+
+
+
+
