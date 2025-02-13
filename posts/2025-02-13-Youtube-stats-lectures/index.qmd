@@ -2,15 +2,17 @@
 title: "Statistical Methods lecture videos"
 description: "Lecture videos from my Statistical Methods course now on Youtube"
 author: "Jack Strelich"
-date: 2025-02-10
+date: 2025-02-13
 categories: [Teaching]
-draft: true
+draft: false
 format: 
   html: 
     df-print: paged
 ---
 
-In December 2019, I signed up to teach my first course as instructor of record: Statistical Methods in Psychological Science, to be taught in Summer 2020. Then, of course, everything changed when ~~the Fire Nation~~ COVID-19 attacked and the university hastily transitioned to remote instruction. As I designed my course, I chose to emphasize flexibility[^forces] for the students: replacing the conventional high-stakes midterm and final exam with weekly assessments, dropping the lowest score on exams and homework assignments, and replacing lectures with asynchronous (pre-recorded) lecture videos. 
+I have a [YouTube](https://www.youtube.com/@JackStrelich)! I've started uploading lecture videos from the [Statistical Methods in Psychological Science course](https://youtube.com/playlist?list=PLCjr5lV7Uv_C1xrGkpRvS9Ogg0f0Qkcjp&feature=shared) I taught in Summer 2020. The production is a little rough around the edges, but overall I think they're a good representation of my teaching in an academic setting -- check 'em out!
+
+A little background: in December 2019, I signed up to teach two courses (Statistical Methods and Developmental Psychology) the following summer, my first courses as instructor of record. Then, of course, everything changed when ~~the Fire Nation~~ COVID-19 attacked and the university hastily transitioned to remote instruction. As I designed my courses, I chose to emphasize flexibility[^forces] for the students: replacing the conventional high-stakes midterm and final exam with weekly assessments, dropping the lowest score on exams and homework assignments, and replacing lectures with asynchronous (pre-recorded) lecture videos. 
 
 [^forces]: At this stage, I was mainly concerned about disruptions due to COVID-19; over the course of the summer, my students would also experience disruption due to civil unrest, natural disasters, and other _forces majeure_. It was a very interesting time to be alive!
 
@@ -20,7 +22,7 @@ Because the lecture videos would be the "face" of the class (especially for the 
 
 The production process was time-consuming: an hour-long lecture took about two hours of recording, another hour of editing, and roughly half an hour to upload to Panopto. Still, because the lecture videos were the main point of contact with the course material for my students, I felt that this was time well-spent. Both in office hours and in anonymous feedback, students said that they enjoyed the flexibility of the asynchronous lectures, and that they found the information clear and easy to follow.
 
-I've started uploading the lecture videos to [a playlist on my YouTube](https://youtube.com/playlist?list=PLCjr5lV7Uv_C1xrGkpRvS9Ogg0f0Qkcjp&feature=shared); I currently have the first two weeks (out of six) posted. While there are some things I'd do differently if I were to teach this course again (a full-on flipped classroom approach, and better audio mixing), I'm still very proud of the end product. Let me know what you think!
+I currently have the first two weeks (out of six) posted to [a playlist on my YouTube](https://youtube.com/playlist?list=PLCjr5lV7Uv_C1xrGkpRvS9Ogg0f0Qkcjp&feature=shared). While there are some things I'd do differently if I were to teach this course again (e.g., a full-on flipped classroom approach, and better audio mixing), I'm still very proud of the end product. Let me know what you think!
 
 
 
