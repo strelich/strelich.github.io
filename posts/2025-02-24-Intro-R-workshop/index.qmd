@@ -4,7 +4,7 @@ description: "Workshop covering the basics of data-wrangling in R"
 author: "Jack Strelich"
 date: 2025-02-24
 categories: [R, Data Cleaning, Teaching]
-draft: true
+draft: false
 format: html
 ---
 
