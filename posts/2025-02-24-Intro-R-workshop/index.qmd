@@ -1,0 +1,872 @@
+---
+title: "Introduction to R"
+description: "Workshop covering the basics of data-wrangling in R"
+author: "Jack Strelich"
+date: 2025-02-24
+categories: [R, Data Cleaning, Teaching]
+draft: true
+format: html
+---
+
+
+# Overview
+
+## Objectives for today
+- Why R?
+- Getting started with R
+    + Installing R and RStudio
+    + Interacting with R
+    + Organizing work via projects and scripts
+- Nuts and Bolts of R
+    + Objects
+    + Functions
+- Exploring Data
+    + Importing and exploring data
+    + Filtering, subsetting, and cleaning data
+
+
+
+
+## Installation
+
+- R
+    + Allows your computer to "speak" R
+    + Follow the link for your operating system ([Mac](https://cran.r-project.org/bin/macosx/) or [Windows](https://cran.r-project.org/bin/windows/base/))
+    + Make sure to grab the newest version (R 4.4.2 "Pile of Leaves" as of 2024-10-31)
+- RStudio
+    + An integrated development environment (IDE) for R
+    + Provides a helpful interface for writing and running R code
+    + Follow the [link](https://posit.co/download/rstudio-desktop/), then download RStudio Desktop (free)
+- Once you've installed both, launch RStudio!
+
+## Why R?
+- Advantages
+    + Open source, multi-platform
+    + Data wrangling, analysis, and visualization in one place
+    + Tremendously versatile output options through [Quarto](https://quarto.org/)
+        - Documents (HTML, Word, PDF)
+        - Presentations
+        - Interactive web apps (via Shiny)
+    + Great tool for reproducible/open science
+    + Incredibly extensible (via packages)
+- Challenges
+    + No GUI, just code
+    + Steep learning *curb*
+    
+# Getting Started
+
+## RStudio Interface
+
+![The RStudio interface](Graphics/interface.png)
+
+## Organizing our work {.build}
+
+- Organize your R work into discrete projects helps to...
+  - Keep your analysis (code) and output in same location
+  - Allow you to pick up where you left off
+- Let's make a project for this workshop!
+  - Create a folder for today's workshop (if you haven't already) named `SciTrek R Workshop`
+  - Click `Project: (None)` in the upper right corner of RStudio, then `Open project...`
+  - Select the folder you created for the workshop
+- `SciTrek R Workshop` should now appear in upper right corner of RStudio
+
+## Using the console {.build}
+- Click in the console; you should see a prompt (`>`) and a blinking cursor
+- Type `2+2` and hit enter
+
+```{r}
+2+2
+```
+
+```{r, out.width = "40%", fig.align = "center", echo=FALSE}
+knitr::include_graphics("Graphics/hackerman.jpg")
+```
+
+- Simple example, **but** we're entering commands and generating output!
+
+### Incomplete commands {.build}
+
+```{r, eval=FALSE}
+2-5*
+```
+
+- `>` will switch to `+`
+    + Indicates that R is waiting for you to finish the command
+    + If you don't want to, press `esc` to get back the `>`
+- Also: use up/down arrows to cycle through previously entered commands
+- For today:
+    + Code that you should run will be in grey boxes
+    + Results will be `monospaced` and begin with `[1]`
+
+```{r}
+22/7
+```
+
+
+## Creating a new R script {.build}
+- Working in console (*interactively*) is straightforward, but labor-intensive
+- Solution: make a script!
+    + Plain text document containing series of commands
+- Scripts allow you to...
+    + Save and share your work
+    + Easily re-run analyses
+    + And more!
+
+```{r, out.width = "20%", echo=FALSE}
+knitr::include_graphics("Graphics/new script icon.png")
+```
+
+- Use icon in upper-left corner
+    + `Ctrl+Shift+n` (Windows)
+    + `Cmd+Shift+n` (Mac)
+    
+### Working with scripts {.build}
+- The "Run" command will run the line that your cursor is on
+    + "Run" button in upper right corner of script
+    + `Ctrl+Enter` (Windows) 
+    + `Cmd+Return` (Mac)
+    + Can click and drag to select (and run) multiple lines
+    + Run all via `Alt+Ctrl+R` (Windows) or `Opt+Cmd+R` (Mac)
+- Comments: lines beginning with `#` are not evaluated
+```{r}
+# Comments help remind you what each chunk of code does
+# They're also are a great way to take notes!
+```
+
+- For this workshop:
+    + Do work in a script
+    + Run lines via `Ctrl+Enter` or `Cmd+Return`
+    + Take notes via comments!
+
+## Projects
+
+- Save your script
+  - RStudio will default to your project folder or _working directory_
+- Working directory = first place R looks for files
+  - For projects, defaults to the project folder -- this is good!
+- File path appears in RStudio at...
+    - Top of Files pane (lower right)
+    - Top of Console pane (lower left)
+
+<!-- - Projects save your work space, including your working directory -->
+<!--   - Quit RStudio, then navigate to your workshop folder and open the `SciTrek R Workshop.Rproj` file -->
+<!--   - Notice that  -->
+
+
+# Nuts and Bolts of R
+
+## Download data
+
+- Download `phantom.csv` and save it to your workshop folder
+  - You should see it in the Files pane (lower right) along with your script
+- We'll load data from this file into R using the `read_csv()` function
+  - `read_csv()` is part of the `tidyverse` package -- we'll need to load `tidyverse` first
+
+```{r}
+# Load package (put at the top of your script!)
+library(tidyverse)
+
+# Read data
+workshop_data <- read_csv("phantom.csv")
+```
+
+- This code...
+  - Ran a _function_ (`read_csv()`) 
+  - With a single _argument_ (`"phantom.csv"`)
+  - _Assigned_ (`<-`) the function's output to an _object_ (`workshop_data`)
+
+
+## Objects: the nouns of R {.build}
+- Using R means running *functions* (analyses) on *objects* (data)
+- Create objects using the assignment operator (`<-`)[^1]:
+
+```{r}
+x <- 1/20
+```
+
+[^1]:Shortcut: `alt`+`-` or `option`+`-`
+
+- "Print" objects (display in console) by running their name:
+
+```{r}
+x # Print x
+workshop_data # Print (preview of) our data set
+```
+
+### Object names
+- Are case-sensitive (just like everything else in R!)
+
+```{r error=TRUE}
+# Gives an error -- pay attention to capitalization!
+Workshop_data
+```
+
+- Can contain letters, numbers, underscores, and periods
+- **Cannot**:
+    + start with a number
+    + contain spaces or special characters (e.g. `@`,`&`,`%`)
+    + be *reserved words* (e.g. `if`, `else`, `TRUE`, `FALSE`)
+- Should be short, descriptive, and consistent
+    + Good: `avg_anxiety`, `pre_test_data`, `post_test_data`
+    + Bad: `baseline.recall.of.vocabulary.terms`, `foo_bar`, `stuff`
+
+
+
+<!-- For full list of reserved words, run ?reserved -->
+
+<!-- "There are only two hard things in Computer Science: cache invalidation and naming things." -->
+<!-- - Phil Karlton -->
+
+
+
+### Types of objects
+
+- R has a number of object types, including...
+  - *Vector*: one-dimensional sequence of values **of same class** (e.g, numeric or character)
+  - *Matrix*: two-dimensional array of values **of same class**
+  - *Array*: *n*-dimensional array of values **of same class**
+  - *List*: one-dimensional sequence of objects **of any class**
+  - *Data frame*: two-dimensional array of values, each column can be any class
+- Vectors and data frames are by far the most useful for our purposes!
+
+### Vectors {.build}
+- Concatenate multiple values via `c()` and assign to an object to create a *vector*
+```{r}
+v1 <- c(1,4,9,16,25)
+```
+
+- Many operations in R are *vectorized* -- very useful!
+```{r}
+v1/2 # Divide vector by scalar
+v1*v1 # Multiply vector by vector
+sqrt(v1) # Run function on each value in vector
+```
+
+- Notice that each operation outputs a vector of results.
+
+### Data frames
+
+- Data frames are: 
+    + Two-dimensional arrays of values
+    + Each column is a vector
+    + Each of these vectors can be different type (numeric, character, or logical)
+- Very useful for the types of data social scientists work with!
+    + Relatively simple structure (rows = participants, columns = variables)
+    + Allows for numeric, character, and logical variables to coexist
+- We'll get a lot of practice with data frames in just a moment!
+
+### Recap: Objects
+
+- Create objects by assigning values with `<-`
+- "Print" (display) objects by calling them by name
+- Object names must follow R's rules, and should be short, descriptive, and consistent
+- Most useful types of objects:
+  - **Vectors**: one-dimensional sequence of values (numeric, character, or logical)
+  - **Data frames**: two-dimensional array of vectors, can be of different classes
+
+## Functions: the verbs of R {.build}
+
+- Functions allow us to perform operations on objects
+
+```{r}
+head(workshop_data) # Print first few rows of data frame
+summary(workshop_data) # Get basic info for each column in data frame
+glimpse(workshop_data) # Get preview of data frame
+```
+
+- We call functions by typing their name, followed by a set of parentheses
+    + The stuff in the parentheses are the *arguments* of the function
+    + Functions are case-sensitive!
+
+### Help with functions {.build}
+
+- Get details of arguments from the function's documentation: 
+
+```{r, eval=FALSE}
+?pnorm() # Info appears in Help pane (lower right)
+```
+
+- Notice that the Usage section indicates the expected order of arguments
+    + Some arguments have *default values*; note `mean = 0`, `sd = 1`
+    + Unspecified arguments will default to these values if available, or else throw an error 
+- Unnamed arguments are matched by position:
+
+```{r}
+pnorm(q = 2)
+pnorm(2) # First (only) argument is assumed to be q
+```
+
+- In general (and especially when learning), it's a good idea to name all your arguments!
+    + Press `Tab` with cursor inside parentheses to bring up list of arguments
+    + Click or use arrow keys + `Return` to insert
+    
+### Recap: Functions
+
+- Consist of name followed by parentheses
+- Arguments go in parentheses
+    + Can pull up list of possible arguments with `Tab`
+- Good idea to name all arguments!
+- Get help on a function: `?pnorm()`
+
+# Exploring Data
+
+## Using `$` to extract columns {.build}
+
+- Let's say we want to look at our anxiety variable (`Anxiety`).
+
+```{r error=TRUE}
+Anxiety
+```
+
+- What's going on?
+    + R assumes all objects are in *Global Environment*
+    + *But* `Anxiety` is inside `workshop_data`!
+- Use `$` to refer to variables (columns) inside data frames
+  + Returns the variable as a vector
+
+```{r}
+workshop_data$Anxiety
+```
+
+::: {.callout-caution title="You try it!"}
+
+- Extract the `RT` column from `workshop_data` as a vector
+
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+workshop_data$RT
+```
+
+:::
+
+
+## Get summary statistics
+
+- Use `count()` to get number of cases by grouping variable(s)
+  + First argument = data frame (avoids need for `$`)
+  + Additional arguments = grouping variable(s)
+
+```{r}
+count(workshop_data, Condition) # One grouping variable
+count(workshop_data, Condition, Major) # Multiple grouping variables
+```
+
+
+::: {.callout-caution title="You try it!"}
+
+- Get the number of cases by....
+  + `Gender`
+  + `Gender` and `Condition`
+  
+:::
+
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+count(workshop_data, Gender)
+count(workshop_data, Gender, Condition)
+```
+
+:::
+
+## Visualize distributions
+
+- Create a histogram of `Anxiety` with `ggplot()`
+  + `aes()` lets us map variables onto dimensions of the plot
+  + `geom_histogram()` specifies type of plot to draw
+
+```{r}
+ggplot(data = workshop_data, aes(x = Anxiety)) + geom_histogram()
+```
+
+::: {.callout-caution title="You try it!"}
+
+Create a histogram of `RT`.
+
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+ggplot(data = workshop_data, aes(x = RT)) + geom_histogram()
+```
+
+:::
+
+- Notice anything odd in our histograms?
+  + Unusually high Anxiety score
+  + Unusually low RT score
+
+## Filter data frames
+
+- Use `filter()` to select *rows* that meet specific conditions:
+
+```{r}
+filter(workshop_data, Gender == "Female") # All female participants
+filter(workshop_data, Gender == "Female", SES > 3) # Female AND high SES
+filter(workshop_data, Gender == "Female" | SES > 3) # Female OR high SES
+```
+
+::: {.callout-caution title="You try it!"}
+
+- Filter our data set to include only:
+  - `Anxiety` scores under 30
+  - `RT` scores over 50
+  
+:::
+  
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+filter(workshop_data, Anxiety < 30, RT >50)
+```
+:::  
+
+- Let's examine our data frame with `summary()`:
+
+```{r}
+summary(workshop_data)
+```
+
+- Our changes didn't stick!
+  + We need to assign the output of our filter to an object
+  
+::: {.callout-caution title="You try it!"}
+
++ Assign the output of the filter to an object called `workshop_data_filtered`
++ Run `summary()` on the new data frame to make sure the changes stuck
+
+:::
+
+  
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+workshop_data_filtered <- filter(workshop_data, Anxiety < 30, RT >50)
+summary(workshop_data_filtered)
+```
+:::  
+
+## Compute new variables
+
+- Transform/create variables with `mutate()`
+  - Let's convert `Anxiety` to z-scores
+
+```{r}
+# 
+workshop_data_filtered <- mutate(workshop_data_filtered, 
+                                 Anxiety_Z = as.vector(scale(Anxiety)))
+
+workshop_data_filtered
+```
+
+::: {.callout-caution title="You try it!"}
+
+Convert RT to z-sores in a new variable called `RT_Z`
+
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+workshop_data_filtered <- mutate(workshop_data_filtered, 
+                                 RT_Z = as.vector(scale(RT)))
+
+workshop_data_filtered
+```
+:::  
+
+
+## Select columns
+
+- Use `select()` to select *columns*:
+
+```{r}
+# Individual columns, separated by commas
+select(workshop_data_filtered, Condition, Major, Anxiety_Z)
+
+# Range of columns, separated by colon
+# v1:v5 = "from v1 to v5"
+select(workshop_data_filtered, ID:Gender, RT:RT_Z)
+```
+
+
+
+::: {.callout-caution title="You try it!"}
+
+- Select everything **except** `Anxiety` and `RT`
+- Remember to assign output to make changes stick!
+
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+workshop_data_filtered <- select(workshop_data_filtered, ID:SES, Anxiety_Z:RT_Z)
+workshop_data_filtered
+```
+:::  
+
+::: {.callout-note collapse="true" title="`select()` versus subsetting via `[]`"}
+
+- In general, we can use square brackets to select specific elements of data structures:
+  - `v[n]` selects *n*th element of vector *v*
+  - `m[i,j]` selects element at row *i*, column *j* of matrix or data frame *m*
+  - `m[i, ]` selects all elements in row *i*
+  - `m[ ,j]` selects all elements in column *j*
+- `select()` is generally better option for selecting columns because it allows indexing by name:
+  - Easier to read
+  - Doesn't rely on column order
+  - Errors are more flagrant
+
+:::  
+
+
+## Factors
+
+- Factors = useful way of storing categorical data
+  + Stored as integers with assigned *labels* from pre-defined set of *levels*
+- Let's transform our categorical variables into factors:
+
+```{r}
+# We can create/transform multiple variables within same `mutate()` function!
+workshop_data_filtered <- mutate(workshop_data_filtered,
+                                 Condition = factor(Condition),
+                                 Gender = factor(Gender),
+                                 Major = factor(Major))
+
+# Check work
+summary(workshop_data_filtered)
+```
+
+- Check levels of a factor with `levels()`
+
+```{r}
+# Use $ to extract the column from the data set
+levels(workshop_data_filtered$Gender)
+levels(workshop_data_filtered$Condition)
+```
+
+- Notice that factors default to alphabetic ordering of levels.
+  + Fine for `Gender`
+  + Confusing for `Condition`
+
+### Reorder factor levels {.build}
+
+- Use `fct_relevel()` to change order:
+
+```{r}
+workshop_data_filtered <- mutate(workshop_data_filtered,
+       Condition = fct_relevel(Condition, "Control", "LowDose", "HighDose"))
+
+levels(workshop_data_filtered$Condition)
+```
+
+
+### Change factor labels {.build} 
+
+- Use `fct_recode()` to replace factor labels ("new" = "old")
+
+```{r}
+levels(workshop_data_filtered$Gender)
+
+workshop_data_filtered <- mutate(workshop_data_filtered,
+       Gender = fct_recode(Gender, 
+                           "Female" = "F",
+                           "Male" = "M",
+                           "Non-binary" = "N",
+                           "Other" = "O"))
+
+levels(workshop_data_filtered$Gender)
+```
+
+- Always do a sanity check after recoding factors!
+
+```{r}
+# Per earlier summary statistics, should be mainly Male or Female
+count(workshop_data_filtered, Gender)
+```
+
+
+
+## The pipe operator
+
+- Often need to perform a series of operations on the same object
+  + Solution: the pipe operator (`|>`)[^2]
+  + Insert with `Cmd+shift+M`
+- "Pipes" object on left into function on right
+    + Taken as first argument by default
+    + Can use `_` as placeholder
+- Advantages
+    + Avoids nesting; read left-right instead of inside-out
+      - `h(g(f(x)))` vs. `x |> f() |> g() |> h()`
+    + Cleanly perform multiple operations without intermediate objects
+
+```{r}
+# Start with our "raw" data
+workshop_data |>
+  filter(Anxiety < 30, RT >50) |> 
+  mutate(Anxiety_Z = as.vector(scale(Anxiety)),
+         RT_Z = as.vector(scale(RT)),
+         Condition = fct_relevel(Condition, "Control", "LowDose", "HighDose"),
+         Gender = fct_recode(Gender, 
+                           "Female" = "F",
+                           "Male" = "M",
+                           "Non-binary" = "N",
+                           "Other" = "O"),
+         Major = factor(Major)) |> 
+  select(ID:SES, Anxiety_Z:RT_Z)
+```
+
+[^2]: `|>` is the base R ("native") pipe; `%>%` is the older `magrittr` pipe
+
+- Recreates `workshop_data_filtered`!
+
+```{r}
+workshop_data_filtered
+```
+
+## Recap: Exploring data
+
+- Useful functions:
+  - `count()` to get number of cases by grouping variable(s)
+  - `ggplot() + geom_histogram()` to visualize distributions
+  - `filter()` to keep rows based on logical statements
+  - `mutate()` to create/transform variables
+- Must assign output to make changes stick
+- Use pipe operator (`|>`) to perform series of operations on the same object
+
+# Wrapping Up
+
+## Recap
+
+Today, we learned how to:
+
+- Use RStudio to create and edit R scripts
+- Create objects and assign values
+- Run functions on objects
+- Read data into R
+- Explore data and reconfigure variables
+- Clean, filter, and subset data
+
+## The Big Picture
+
+- Workflow in...
+    + SPSS/Excel: your spreadsheet/.sav file is "the thing"
+    + R + RStudio: your script is "the thing"
+- Your RStudio workspace is fleeting and ephemeral; your script endures
+  + Save your scripts early and often!
+  + Do all data cleaning/wrangling/analysis in the script
+  + Everything needed for analysis should be in the script
+    - Load packages via `library()`
+    - Load data via `read_csv()`
+- Use a *project-oriented workflow*
+    + Create a folder (working directory) for each project
+    + Save scripts, data, and output here
+    + Set up as project in RStudio
+- Start each session with blank slate!
+  + `Tools > Global Options... > General` then uncheck all options for Workspace and History
+  
+![Settings under Global Options](Graphics/clean_slate.png)
+  
+::: {.callout-caution title="You try it!"}
+
+- Save your script
+- Quit RStudio
+- Navigate to your workshop folder and open `SciTrek R Workshop.Rproj`
+- Environment pane should be empty
+- Re-run your script
+
+  
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+- You should now see `workshop_data_filtered` in your Environment pane
+  + We're right back where we left off!
+:::
+
+## When things go pear-shaped...
+
+- Check for typos!
+  + cApItAlIzAtIoN
+  + Make sure that quotes, parentheses, and brackets are paired correctly
+    - Place cursor on a parenthesis, R will highlight its mate!
+- Make sure necessary packages are loaded!
+  + `could not find function` usually means typo OR package isn't loaded
+- Work with a buddy!
+  + Rubber duck debugging!
+- `Session` > `Restart R`!
+
+![It works about half the time!](Graphics/ITCrow.jpg)
+
+## Useful resources
+
+- [*R for Data Science*](https://r4ds.hadley.nz/): By the authors of the `tidyverse`!
+- [*Cookbook for R*](http://www.cookbook-r.com/): Straightforward, focused on problem-solving
+- [Cheatsheets](https://posit.co/resources/cheatsheets/): Resources for base R, RStudio, and some popular packages
+
+<!-- - Your script is your work -- objects/history are ephemeral -->
+
+# Bonus Content!
+
+## Restructuring Data
+
+Next, we'll introduce a new data set and get some practice with _data restructuring_.
+
+```{r}
+wide_data <- read_csv("wide_data.csv")
+glimpse(wide_data)
+```
+
+
+Data from (imaginary) participants from our previous (imaginary) study
+
+- `ID`: participant ID
+- `Introv_`: introversion scores at three time points (`T1` through `T3`)
+- `Risktol_`: risk tolerance scores at three time points (`T1` through `T3`)
+    
+### Ways of structuring data
+
+- _Wide data_
+    + Each observation of each variable is a column
+    + Each participant is a row
+    + Default for SPSS (and Qualtrics)!
+    
+```{r, echo=FALSE}
+head(wide_data)
+```
+    
+- _Long data_
+    + Each variable is a column
+    + Each observation is a row
+  
+```{r, echo=FALSE}
+head(Orange)
+```    
+
+Wide and long format have advantages/disadvantages. What format should you aim for?
+
+  - *Tidy* data format is standardized, easy to read, easy to restructure
+    + Each **variable** is a column
+    + Each **observation** is a row
+    + Each **type** of observational unit is a table
+  - More info on tidy data: https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html
+
+With these principles in mind, let's look at our new data set:
+
+```{r}
+head(wide_data)
+```
+
+- What are our variables?
+- What are our columns?
+- Let's tidy it up!
+
+### Tidying data
+
+Start by converting to long data:
+
+```{r}
+tidy_dat <- pivot_longer(wide_data, # Which data set
+                         cols = Introv_T1:Risktol_T3, # Which columns to restructure
+                         names_to = "Measure", # New column of names
+                         values_to = "Score") # New column of values
+tidy_dat
+```
+
+
+The `Measure` column combines the other two variables with time. Let's make sure that each variable gets its own column; we'll need to split the names in `Measure` into two parts.
+
+```{r}
+tidy_dat <-  separate(tidy_dat, 
+                      Measure, # Which col to split
+                      sep = "_", # Which character to split at
+                      into = c("Measure","Time"), # Names for new cols
+                      remove = TRUE) # Get rid of the original col after
+
+tidy_dat
+```
+
+`separate()` separates columns at a given separator (e.g., `_`) OR position (e.g., seventh character). By default, it will treat any non-alphanumeric character as a separator (so we technically didn't need to specify `sep` here).
+
+
+The last step: `Introv` and `Risktol` share the same columns (`Measure` and `Score`). Solution: pivot wider with `pivot_wider()`.
+
+```{r}
+tidy_dat <- pivot_wider(tidy_dat,
+                        names_from = Measure, # Where to get column names from
+                        values_from = Score) # Where to get actual values from
+tidy_dat
+```
+
+
+Finally, our data is tidy:
+
+  + Each variable (`id`, `Gender`, `Time`, `Introv`, `Risktol`) is its own column
+  + Each observation is a row
+  + Table represents a single type of observational unit (people)
+
+### A more streamlined approach
+
+```{r}
+pivot_longer(wide_data,
+             Introv_T1:Risktol_T3, # Specify columns to pivot
+             names_sep = "_", # Parts of name are separated by underscore
+             names_to = c(".value", "Time")) # 1st bit names new cols, 2nd bit gets named "Time"
+```
+
+
+### Tidy data resources
+
+- [Dr. Wickham's original paper](http://vita.had.co.nz/papers/tidy-data.pdf)
+- [Hands-on version](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html)
+- [Another how-to](https://garrettgman.github.io/tidying/)
+
+
+## Best Practices for Data Collection and Wrangling
+
+Don't:
+
+- Overwrite raw data
+  - Do all data cleaning/wrangling in a script instead
+- Merge cells
+  - Makes data difficult/impossible for R to read
+- Include multiple tables in one sheet
+  - Makes data difficult/impossible for R to read
+- Use formatting (highlighting, bold, italics) to record data
+  - Easily lost when loading data
+- Split data with common format across tabs/files
+  - Easy to make mistakes, minor discrepancies can cause major headaches
+
+Do:
+  
+- Represent *variables* as columns and *observations* as rows
+  - Tidy data!
+- Store only one piece of information per cell
+  - Bad: `Height` = `6ft4in`
+  - Good: `Height_inches` = `76`
+
+Excellent [Data Carpentry workshop](https://datacarpentry.github.io/spreadsheets-socialsci/) on this topic! 
+
+
+```{r}
+#| eval: false
+#| include: false
+
+foo <- map_dfc((19:10/20), \(x) rbinom(300, size = 1,prob = x)) |> 
+  set_names(paste0("Q",1:10)) |> 
+  mutate(Student = 1:300, .before=1) |> 
+  slice_sample(prop = 0.8) |> 
+  arrange(Student) |> write_csv("quiz.csv")
+
+bar <- foo |> pivot_longer(-Student) |> summarise(Quiz = mean(value), .by = Student)
+
+left_join(workshop_data_filtered, bar, by = join_by(ID == Student))
+
+```
+
