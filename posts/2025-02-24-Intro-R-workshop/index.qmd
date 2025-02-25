@@ -65,10 +65,10 @@ format: html
   - Keep your analysis (code) and output in same location
   - Allow you to pick up where you left off
 - Let's make a project for this workshop!
-  - Create a folder for today's workshop (if you haven't already) named `SciTrek R Workshop`
+  - Create a folder for today's workshop (if you haven't already) named `R Workshop`
   - Click `Project: (None)` in the upper right corner of RStudio, then `Open project...`
   - Select the folder you created for the workshop
-- `SciTrek R Workshop` should now appear in upper right corner of RStudio
+- `R Workshop` should now appear in upper right corner of RStudio
 
 ## Using the console {.build}
 - Click in the console; you should see a prompt (`>`) and a blinking cursor
@@ -149,7 +149,7 @@ knitr::include_graphics("Graphics/new script icon.png")
     - Top of Console pane (lower left)
 
 <!-- - Projects save your work space, including your working directory -->
-<!--   - Quit RStudio, then navigate to your workshop folder and open the `SciTrek R Workshop.Rproj` file -->
+<!--   - Quit RStudio, then navigate to your workshop folder and open the `R Workshop.Rproj` file -->
 <!--   - Notice that  -->
 
 
@@ -406,9 +406,9 @@ ggplot(data = workshop_data, aes(x = RT)) + geom_histogram()
 - Use `filter()` to select *rows* that meet specific conditions:
 
 ```{r}
-filter(workshop_data, Gender == "Female") # All female participants
-filter(workshop_data, Gender == "Female", SES > 3) # Female AND high SES
-filter(workshop_data, Gender == "Female" | SES > 3) # Female OR high SES
+filter(workshop_data, Gender == "F") # All female participants
+filter(workshop_data, Gender == "F", SES > 3) # Female AND high SES
+filter(workshop_data, Gender == "F" | SES > 3) # Female OR high SES
 ```
 
 ::: {.callout-caution title="You try it!"}
@@ -677,7 +677,7 @@ Today, we learned how to:
 
 - Save your script
 - Quit RStudio
-- Navigate to your workshop folder and open `SciTrek R Workshop.Rproj`
+- Navigate to your workshop folder and open `R Workshop.Rproj`
 - Environment pane should be empty
 - Re-run your script
 
