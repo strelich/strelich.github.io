@@ -244,6 +244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#reorder-factor-levels" id="toc-reorder-factor-levels" class="nav-link" data-scroll-target="#reorder-factor-levels">Reorder factor levels</a></li>
   <li><a href="#change-factor-labels" id="toc-change-factor-labels" class="nav-link" data-scroll-target="#change-factor-labels">Change factor labels</a></li>
   </ul></li>
+  <li><a href="#descriptives-by-group" id="toc-descriptives-by-group" class="nav-link" data-scroll-target="#descriptives-by-group">Descriptives by group</a></li>
   <li><a href="#the-pipe-operator" id="toc-the-pipe-operator" class="nav-link" data-scroll-target="#the-pipe-operator">The pipe operator</a></li>
   <li><a href="#recap-exploring-data" id="toc-recap-exploring-data" class="nav-link" data-scroll-target="#recap-exploring-data">Recap: Exploring data</a></li>
   </ul></li>
@@ -1590,6 +1591,114 @@ Check your work
 </div>
 </section>
 </section>
+<section id="descriptives-by-group" class="level2">
+<h2 class="anchored" data-anchor-id="descriptives-by-group">Descriptives by group</h2>
+<ul>
+<li>Use <code>summarise()</code> to get descriptive statistics by group
+<ul>
+<li>Each argument gives name of descriptive stat and how to calculate</li>
+<li>Specify grouping variable(s) with <code>.by</code></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean and SD of SES, by Condition</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(workshop_data_filtered,</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">SES_M =</span> <span class="fu">mean</span>(SES),</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">SES_SD =</span> <span class="fu">sd</span>(SES), </span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">n =</span> <span class="fu">n</span>(), <span class="co"># Number of cases</span></span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">.by =</span> Condition)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Condition SES_M SES_SD     n
+  &lt;fct&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+1 LowDose    2.69   1.09    97
+2 HighDose   2.51   1.04    98
+3 Control    2.66   1.22    98</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co"># By condition and major</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(workshop_data_filtered,</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">SES_M =</span> <span class="fu">mean</span>(SES),</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">SES_SD =</span> <span class="fu">sd</span>(SES), </span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">n =</span> <span class="fu">n</span>(), <span class="co"># Number of cases</span></span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">.by =</span> <span class="fu">c</span>(Condition,Major))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 5
+   Condition Major SES_M SES_SD     n
+   &lt;fct&gt;     &lt;fct&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+ 1 LowDose   Psyc   2.98  1.13     41
+ 2 LowDose   Hist   2.49  0.978    41
+ 3 LowDose   Chem   2.46  1.13     13
+ 4 LowDose   &lt;NA&gt;   2.5   2.12      2
+ 5 HighDose  Psyc   2.43  1.01     56
+ 6 HighDose  Hist   2.32  1.07     25
+ 7 HighDose  &lt;NA&gt;   4    NA         1
+ 8 HighDose  Chem   3     0.966    16
+ 9 Control   Psyc   2.74  1.21     53
+10 Control   Hist   2.64  1.22     28
+11 Control   Chem   2.5   1.34     14
+12 Control   &lt;NA&gt;   2.33  1.15      3</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled" title="You try it!">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+You try it!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Get descriptive statistics for <code>RT_Z</code> by <code>Condition</code> and <code>Gender</code>
+<ul>
+<li>Get mean via <code>mean()</code> and median via <code>median()</code></li>
+<li>Include number of cases with <code>n()</code></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Check your work">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Check your work
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(workshop_data_filtered,</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">RT_M =</span> <span class="fu">mean</span>(RT_Z),</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">RT_Median =</span> <span class="fu">median</span>(RT_Z), </span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">n =</span> <span class="fu">n</span>(), <span class="co"># Number of cases</span></span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">.by =</span> <span class="fu">c</span>(Condition,Gender))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 5
+   Condition Gender         RT_M RT_Median     n
+   &lt;fct&gt;     &lt;fct&gt;         &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;
+ 1 LowDose   Male        0.109     -0.0600    52
+ 2 LowDose   Female     -0.00847   -0.110     42
+ 3 LowDose   &lt;NA&gt;        0.706      0.706      2
+ 4 LowDose   Non-binary  2.54       2.54       1
+ 5 HighDose  Male       -0.210     -0.227     38
+ 6 HighDose  Female     -0.00173    0.0232    56
+ 7 HighDose  Non-binary -0.182     -0.360      3
+ 8 HighDose  &lt;NA&gt;        1.01       1.01       1
+ 9 Control   Female     -0.142     -0.127     55
+10 Control   Male        0.0575     0.0732    36
+11 Control   &lt;NA&gt;        0.240      0.240      1
+12 Control   Other       0.340      0.340      1
+13 Control   Non-binary  0.699      0.673      5</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="the-pipe-operator" class="level2">
 <h2 class="anchored" data-anchor-id="the-pipe-operator">The pipe operator</h2>
 <ul>
@@ -1613,19 +1722,19 @@ Check your work
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with our "raw" data</span></span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>workshop_data <span class="sc">|&gt;</span></span>
-<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Anxiety <span class="sc">&lt;</span> <span class="dv">30</span>, RT <span class="sc">&gt;</span><span class="dv">50</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Anxiety_Z =</span> <span class="fu">as.vector</span>(<span class="fu">scale</span>(Anxiety)),</span>
-<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">RT_Z =</span> <span class="fu">as.vector</span>(<span class="fu">scale</span>(RT)),</span>
-<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">Condition =</span> <span class="fu">fct_relevel</span>(Condition, <span class="st">"Control"</span>, <span class="st">"LowDose"</span>, <span class="st">"HighDose"</span>),</span>
-<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">Gender =</span> <span class="fu">fct_recode</span>(Gender, </span>
-<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Female"</span> <span class="ot">=</span> <span class="st">"F"</span>,</span>
-<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Male"</span> <span class="ot">=</span> <span class="st">"M"</span>,</span>
-<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Non-binary"</span> <span class="ot">=</span> <span class="st">"N"</span>,</span>
-<span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"O"</span>),</span>
-<span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">Major =</span> <span class="fu">factor</span>(Major)) <span class="sc">|&gt;</span> </span>
-<span id="cb92-13"><a href="#cb92-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ID<span class="sc">:</span>SES, Anxiety_Z<span class="sc">:</span>RT_Z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with our "raw" data</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>workshop_data <span class="sc">|&gt;</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Anxiety <span class="sc">&lt;</span> <span class="dv">30</span>, RT <span class="sc">&gt;</span><span class="dv">50</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Anxiety_Z =</span> <span class="fu">as.vector</span>(<span class="fu">scale</span>(Anxiety)),</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">RT_Z =</span> <span class="fu">as.vector</span>(<span class="fu">scale</span>(RT)),</span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">Condition =</span> <span class="fu">fct_relevel</span>(Condition, <span class="st">"Control"</span>, <span class="st">"LowDose"</span>, <span class="st">"HighDose"</span>),</span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">Gender =</span> <span class="fu">fct_recode</span>(Gender, </span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Female"</span> <span class="ot">=</span> <span class="st">"F"</span>,</span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Male"</span> <span class="ot">=</span> <span class="st">"M"</span>,</span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Non-binary"</span> <span class="ot">=</span> <span class="st">"N"</span>,</span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"O"</span>),</span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">Major =</span> <span class="fu">factor</span>(Major)) <span class="sc">|&gt;</span> </span>
+<span id="cb98-13"><a href="#cb98-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ID<span class="sc">:</span>SES, Anxiety_Z<span class="sc">:</span>RT_Z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 293 × 7
       ID Condition Gender Major   SES Anxiety_Z   RT_Z
@@ -1647,7 +1756,7 @@ Check your work
 <li>Recreates <code>workshop_data_filtered</code>!</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>workshop_data_filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>workshop_data_filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 293 × 7
       ID Condition Gender Major   SES Anxiety_Z   RT_Z
@@ -1750,7 +1859,7 @@ You try it!
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Check your work">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1759,7 +1868,7 @@ Check your work
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <ul>
 <li>You should now see <code>workshop_data_filtered</code> in your Environment pane
@@ -1815,7 +1924,7 @@ Check your work
 <h2 class="anchored" data-anchor-id="restructuring-data">Restructuring Data</h2>
 <p>Next, we’ll introduce a new data set and get some practice with <em>data restructuring</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>wide_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"wide_data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>wide_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"wide_data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 270 Columns: 7
 ── Column specification ────────────────────────────────────────────────────────
@@ -1825,7 +1934,7 @@ dbl (7): ID, Introv_T1, Introv_T2, Introv_T3, Risktol_T1, Risktol_T2, Riskto...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(wide_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(wide_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 270
 Columns: 7
@@ -1897,7 +2006,7 @@ $ Risktol_T3 &lt;dbl&gt; 3, 12, 14, 21, 23, 14, 1, 12, 20, 28, 26, 24, 3, 35, 16
 </ul>
 <p>With these principles in mind, let’s look at our new data set:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wide_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wide_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 7
      ID Introv_T1 Introv_T2 Introv_T3 Risktol_T1 Risktol_T2 Risktol_T3
@@ -1920,11 +2029,11 @@ $ Risktol_T3 &lt;dbl&gt; 3, 12, 14, 21, 23, 14, 1, 12, 20, 28, 26, 24, 3, 35, 16
 <h3 class="anchored" data-anchor-id="tidying-data">Tidying data</h3>
 <p>Start by converting to long data:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(wide_data, <span class="co"># Which data set</span></span>
-<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">cols =</span> Introv_T1<span class="sc">:</span>Risktol_T3, <span class="co"># Which columns to restructure</span></span>
-<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">names_to =</span> <span class="st">"Measure"</span>, <span class="co"># New column of names</span></span>
-<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">values_to =</span> <span class="st">"Score"</span>) <span class="co"># New column of values</span></span>
-<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(wide_data, <span class="co"># Which data set</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">cols =</span> Introv_T1<span class="sc">:</span>Risktol_T3, <span class="co"># Which columns to restructure</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">names_to =</span> <span class="st">"Measure"</span>, <span class="co"># New column of names</span></span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">values_to =</span> <span class="st">"Score"</span>) <span class="co"># New column of values</span></span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,620 × 3
       ID Measure    Score
@@ -1944,13 +2053,13 @@ $ Risktol_T3 &lt;dbl&gt; 3, 12, 14, 21, 23, 14, 1, 12, 20, 28, 26, 24, 3, 35, 16
 </div>
 <p>The <code>Measure</code> column combines the other two variables with time. Let’s make sure that each variable gets its own column; we’ll need to split the names in <code>Measure</code> into two parts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span>  <span class="fu">separate</span>(tidy_dat, </span>
-<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>                      Measure, <span class="co"># Which col to split</span></span>
-<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sep =</span> <span class="st">"_"</span>, <span class="co"># Which character to split at</span></span>
-<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"Measure"</span>,<span class="st">"Time"</span>), <span class="co"># Names for new cols</span></span>
-<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">remove =</span> <span class="cn">TRUE</span>) <span class="co"># Get rid of the original col after</span></span>
-<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span>  <span class="fu">separate</span>(tidy_dat, </span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>                      Measure, <span class="co"># Which col to split</span></span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sep =</span> <span class="st">"_"</span>, <span class="co"># Which character to split at</span></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"Measure"</span>,<span class="st">"Time"</span>), <span class="co"># Names for new cols</span></span>
+<span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">remove =</span> <span class="cn">TRUE</span>) <span class="co"># Get rid of the original col after</span></span>
+<span id="cb112-6"><a href="#cb112-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-7"><a href="#cb112-7" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,620 × 4
       ID Measure Time  Score
@@ -1971,10 +2080,10 @@ $ Risktol_T3 &lt;dbl&gt; 3, 12, 14, 21, 23, 14, 1, 12, 20, 28, 26, 24, 3, 35, 16
 <p><code>separate()</code> separates columns at a given separator (e.g., <code>_</code>) OR position (e.g., seventh character). By default, it will treat any non-alphanumeric character as a separator (so we technically didn’t need to specify <code>sep</code> here).</p>
 <p>The last step: <code>Introv</code> and <code>Risktol</code> share the same columns (<code>Measure</code> and <code>Score</code>). Solution: pivot wider with <code>pivot_wider()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(tidy_dat,</span>
-<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">names_from =</span> Measure, <span class="co"># Where to get column names from</span></span>
-<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">values_from =</span> Score) <span class="co"># Where to get actual values from</span></span>
-<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>tidy_dat <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(tidy_dat,</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">names_from =</span> Measure, <span class="co"># Where to get column names from</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">values_from =</span> Score) <span class="co"># Where to get actual values from</span></span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>tidy_dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 810 × 4
       ID Time  Introv Risktol
@@ -2002,10 +2111,10 @@ $ Risktol_T3 &lt;dbl&gt; 3, 12, 14, 21, 23, 14, 1, 12, 20, 28, 26, 24, 3, 35, 16
 <section id="a-more-streamlined-approach" class="level3">
 <h3 class="anchored" data-anchor-id="a-more-streamlined-approach">A more streamlined approach</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_longer</span>(wide_data,</span>
-<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>             Introv_T1<span class="sc">:</span>Risktol_T3, <span class="co"># Specify columns to pivot</span></span>
-<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">names_sep =</span> <span class="st">"_"</span>, <span class="co"># Parts of name are separated by underscore</span></span>
-<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"Time"</span>)) <span class="co"># 1st bit names new cols, 2nd bit gets named "Time"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_longer</span>(wide_data,</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>             Introv_T1<span class="sc">:</span>Risktol_T3, <span class="co"># Specify columns to pivot</span></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">names_sep =</span> <span class="st">"_"</span>, <span class="co"># Parts of name are separated by underscore</span></span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"Time"</span>)) <span class="co"># 1st bit names new cols, 2nd bit gets named "Time"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 810 × 4
       ID Time  Introv Risktol
