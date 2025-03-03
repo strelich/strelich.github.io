@@ -591,7 +591,47 @@ levels(workshop_data_filtered$Gender)
 count(workshop_data_filtered, Gender)
 ```
 
+## Descriptives by group
 
+- Use `summarise()` to get descriptive statistics by group
+  + Each argument gives name of descriptive stat and how to calculate
+  + Specify grouping variable(s) with `.by`
+
+```{r}
+# Mean and SD of SES, by Condition
+summarise(workshop_data_filtered,
+          SES_M = mean(SES),
+          SES_SD = sd(SES), 
+          n = n(), # Number of cases
+          .by = Condition)
+
+# By condition and major
+summarise(workshop_data_filtered,
+          SES_M = mean(SES),
+          SES_SD = sd(SES), 
+          n = n(), # Number of cases
+          .by = c(Condition,Major))
+
+```
+
+::: {.callout-caution title="You try it!"}
+
+- Get descriptive statistics for `RT_Z` by `Condition` and `Gender`
+  + Get mean via `mean()` and median via `median()`
+  + Include number of cases with `n()`
+
+:::
+
+::: {.callout-tip collapse="true" title="Check your work"}
+
+```{r}
+summarise(workshop_data_filtered,
+          RT_M = mean(RT_Z),
+          RT_Median = median(RT_Z), 
+          n = n(), # Number of cases
+          .by = c(Condition,Gender))
+```
+:::  
 
 ## The pipe operator
 
